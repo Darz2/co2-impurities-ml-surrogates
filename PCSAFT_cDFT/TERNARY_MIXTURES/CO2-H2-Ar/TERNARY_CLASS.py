@@ -315,7 +315,7 @@ def plot_PT(PT_results, feed_key, parameters):
     
     return fig,ax
 
-######################## TERNARY PLOT SETTINGS ##################### 
+######################## TERNARY PLOT SETTINGS #####################
 def plot_ternary_vle(rows,feeds,components,*,permutation="210",
     scale=1.0,
     figsize=(7, 6.5),
