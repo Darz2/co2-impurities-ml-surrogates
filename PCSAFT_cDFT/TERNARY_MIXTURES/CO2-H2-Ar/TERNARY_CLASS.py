@@ -246,7 +246,7 @@ def solve_interface_properties(interface, si):
 
 
 ######################## Append data #########################
-def row_append(z, x, y, liquid_density, vapor_density, critical_temperature,
+def row_append(x, y, liquid_density, vapor_density, critical_temperature,
                gamma_mN_m, interfacial_thickness_nm,  components, enrichment):
     """
     Build a results dictionary for one composition case.
@@ -255,7 +255,6 @@ def row_append(z, x, y, liquid_density, vapor_density, critical_temperature,
     E_1, E_2, E_3 = enrichment
 
     return {
-        f"feed_{C_1}": z[0], f"feed_{C_2}": z[1], f"feed_{C_3}": z[2],
         f"x_{C_1}": x[0], f"x_{C_2}": x[1], f"x_{C_3}": x[2],
         f"y_{C_1}": y[0], f"y_{C_2}": y[1], f"y_{C_3}": y[2],
         "liquid_density_kg_m3": float(liquid_density), "vapor_density_kg_m3": float(vapor_density),
