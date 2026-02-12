@@ -1,0 +1,9 @@
+Job started at: 14:37:45
+/home/darshan/A6/py_A6/bin/python
+/home/darshan/texlive/2025/bin/x86_64-linux/latex
+Input Notebook:  CO2_CH4.ipynb
+Output Notebook: OUTPUT/CO2_CH4_output.ipynb
+Executing:   0%|          | 0/8 [00:00<?, ?cell/s]Executing notebook with kernel: python3
+Executing:  12%|█▎        | 1/8 [00:03<00:26,  3.79s/cell]Executing:  50%|█████     | 4/8 [00:03<00:02,  1.34cell/s]Executing:  50%|█████     | 4/8 [00:20<00:02,  1.34cell/s]Executing:  62%|██████▎   | 5/8 [00:38<00:30, 10.05s/cell]Executing:  75%|███████▌  | 6/8 [01:02<00:28, 14.02s/cell]Executing:  88%|████████▊ | 7/8 [09:03<02:29, 149.05s/cell]Executing: 100%|██████████| 8/8 [09:06<00:00, 106.32s/cell]Executing: 100%|██████████| 8/8 [09:08<00:00, 68.58s/cell] 
+Job ended at: 14:46:59
+Total time: 9.23 minutes

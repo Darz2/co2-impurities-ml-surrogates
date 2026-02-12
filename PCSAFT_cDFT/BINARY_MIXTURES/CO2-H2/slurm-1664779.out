@@ -1,0 +1,48 @@
+Job started at: 16:01:58
+/home/darshan/A6/py_A6/bin/python
+/home/darshan/texlive/2025/bin/x86_64-linux/latex
+Input Notebook:  CO2_H2.ipynb
+Output Notebook: OUTPUT/CO2_H2_output.ipynb
+Executing:   0%|          | 0/8 [00:00<?, ?cell/s]Executing notebook with kernel: python3
+Executing:  12%|█▎        | 1/8 [00:02<00:17,  2.56s/cell]Executing:  62%|██████▎   | 5/8 [00:29<00:18,  6.06s/cell]Executing:  75%|███████▌  | 6/8 [00:29<00:09,  4.78s/cell]Executing:  88%|████████▊ | 7/8 [00:30<00:03,  3.66s/cell]Executing:  88%|████████▊ | 7/8 [00:32<00:04,  4.67s/cell]
+Traceback (most recent call last):
+  File "/home/darshan/A6/py_A6/bin/papermill", line 7, in <module>
+    sys.exit(papermill())
+             ^^^^^^^^^^^
+  File "/home/darshan/A6/py_A6/lib/python3.12/site-packages/click/core.py", line 1485, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/darshan/A6/py_A6/lib/python3.12/site-packages/click/core.py", line 1406, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/home/darshan/A6/py_A6/lib/python3.12/site-packages/click/core.py", line 1269, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/darshan/A6/py_A6/lib/python3.12/site-packages/click/core.py", line 824, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/darshan/A6/py_A6/lib/python3.12/site-packages/click/decorators.py", line 34, in new_func
+    return f(get_current_context(), *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/darshan/A6/py_A6/lib/python3.12/site-packages/papermill/cli.py", line 235, in papermill
+    execute_notebook(
+  File "/home/darshan/A6/py_A6/lib/python3.12/site-packages/papermill/execute.py", line 131, in execute_notebook
+    raise_for_execution_errors(nb, output_path)
+  File "/home/darshan/A6/py_A6/lib/python3.12/site-packages/papermill/execute.py", line 251, in raise_for_execution_errors
+    raise error
+papermill.exceptions.PapermillExecutionError: 
+---------------------------------------------------------------------------
+Exception encountered at "In [7]":
+---------------------------------------------------------------------------
+RuntimeError                              Traceback (most recent call last)
+Cell In[7], line 7
+      5 kij_T    = kij(T)
+      6 eos      = eos_from_kij_helmholtz(kij_T, parameters)
+----> 7 dia_kij  = feos.PhaseDiagram.binary_vle(eos, T * si.KELVIN, npoints=pts)
+      8 IFT_kij  = feos.SurfaceTensionDiagram(dia_kij.states, n_grid=100)
+     10 xL_kij  = IFT_kij.liquid.molefracs[:, 1]
+
+RuntimeError: `Critical point` did not converge within the maximum number of iterations.
+
+Job ended at: 16:02:32
+Total time: .56 minutes

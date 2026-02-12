@@ -1,0 +1,77 @@
+[
+    {
+        "id1": {
+            "cas": "124-38-9",
+            "name": "carbon dioxide",
+            "iupac_name": "carbon dioxide",
+            "smiles": "O=C=O",
+            "inchi": "InChI=1S/CO2/c2-1-3"
+        },
+        "id2": {
+            "cas": "1333-74-0",
+            "name": "hydrogen",
+            "iupac_name": "molecular hydrogen",
+            "smiles": "[HH]",
+            "inchi": "InChI=1S/H2/h1H",
+            "formula": "H2"
+        },
+        "k_ij": 0.01,
+        "l_ij": 0.0
+    },
+        {
+        "id1": {
+            "cas": "7440-37-1",
+            "name": "argon",
+            "iupac_name": "argon",
+            "smiles": "[Ar]",
+            "inchi": "InChI=1S/Ar"
+        },
+        "id2": {
+            "cas": "1333-74-0",
+            "name": "hydrogen",
+            "iupac_name": "molecular hydrogen",
+            "smiles": "[HH]",
+            "inchi": "InChI=1S/H2/h1H",
+            "formula": "H2"
+        },
+        "k_ij": 0.01,
+        "l_ij": 0.0
+    },
+            {
+        "id1": {
+            "cas": "7727-37-9",
+            "name": "nitrogen",
+            "iupac_name": "molecular nitrogen",
+            "smiles": "N#N",
+            "inchi": "InChI=1S/N2/c1-2"
+        },
+        "id2": {
+            "cas": "1333-74-0",
+            "name": "hydrogen",
+            "iupac_name": "molecular hydrogen",
+            "smiles": "[HH]",
+            "inchi": "InChI=1S/H2/h1H",
+            "formula": "H2"
+        },
+        "k_ij": 0.02,
+        "l_ij": 0.0
+    },
+                {
+        "id1": {
+            "cas": "7727-37-9",
+            "name": "nitrogen",
+            "iupac_name": "molecular nitrogen",
+            "smiles": "N#N",
+            "inchi": "InChI=1S/N2/c1-2"
+        },
+        "id2": {
+            "cas": "7440-37-1",
+            "name": "argon",
+            "iupac_name": "argon",
+            "smiles": "[Ar]",
+            "inchi": "InChI=1S/Ar"
+        },
+        "k_ij": 0.03,
+        "l_ij": 0.0
+    }
+]

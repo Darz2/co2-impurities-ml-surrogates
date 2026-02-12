@@ -1,0 +1,22 @@
+[
+    {
+        "id1": {
+            "cas": "7440-59-7",
+            "name": "helium",
+            "iupac_name": "helium",
+            "smiles": "[He]",
+            "inchi": "InChI=1S/He",
+            "formula": "He"
+        },
+        "id2": {
+            "cas": "7440-01-9",
+            "name": "neon",
+            "iupac_name": "neon",
+            "smiles": "[Ne]",
+            "inchi": "InChI=1S/Ne",
+            "formula": "Ne"
+        },
+        "k_ij": -0.22,
+        "l_ij": 0.0
+    }
+]
