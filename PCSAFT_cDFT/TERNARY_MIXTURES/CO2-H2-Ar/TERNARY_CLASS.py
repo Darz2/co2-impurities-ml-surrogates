@@ -6,6 +6,12 @@ from molmass import Formula
 sys.path.append("..")
 import PLOT_SETTINGS as ps
 
+# FOr colormaps
+from matplotlib.colors import Normalize
+from scipy.interpolate import griddata
+from matplotlib.path import Path
+from scipy.ndimage import binary_erosion
+
 ############# Helper functions ############
 def print_array2d(feeds, decimals=4):
     ncols = feeds.shape[1]
@@ -50,25 +56,6 @@ def components(parameters):
         )
 
     return tuple(component_labels)
-
-def save_figure(fig, filename):
-    """Saves the figure with the predefined resolution."""
-    output_dir = os.getcwd()
-    file_path = os.path.join(output_dir, filename)
-    fig.savefig(file_path, dpi=1200, bbox_inches='tight')
-    fig.savefig(fr"{filename}", dpi=1200, bbox_inches='tight')
-    
-def save_plot(fig, filename_base, folder="PLOTS"):
-    """
-    Save a figure as both PNG and PDF using save_figure.
-    """
-    os.makedirs(folder, exist_ok=True)
-
-    png_path = os.path.join(folder, f"{filename_base}.png")
-    pdf_path = os.path.join(folder, f"{filename_base}.pdf")
-
-    save_figure(fig, png_path)
-    save_figure(fig, pdf_path)
 
 def latex_formula(formula: str) -> str:
     """
@@ -154,7 +141,7 @@ def density_kg_m3(rho_molar, z, molar_masses, molar_mass_unit="g/mol"):
     M_mix = np.sum(z * M)
     return rho_mol_m3 * M_mix
 
-########### VLE computation ############
+########### VLE computations ############
 def compute_bubble_curve(eos, T_vals, feed, verbose):
     feed = np.array(feed/si.MOL)
     bubble_pressures = []
@@ -244,8 +231,7 @@ def solve_interface_properties(interface, si):
 
     return gamma_mN_m, interfacial_thickness_nm, (E_1, E_2, E_3)
 
-
-######################## Append data #########################
+######################## Append and save data #########################
 def row_append(x, y, liquid_density, vapor_density, critical_temperature,
                gamma_mN_m, interfacial_thickness_nm,  components, enrichment):
     """
@@ -264,6 +250,109 @@ def row_append(x, y, liquid_density, vapor_density, critical_temperature,
         f"E_{C_1}": E_1, f"E_{C_2}": E_2, f"E_{C_3}": E_3,
     }
 
+def save_figure(fig, filename):
+    """Saves the figure with the predefined resolution."""
+    output_dir = os.getcwd()
+    file_path = os.path.join(output_dir, filename)
+    fig.savefig(file_path, dpi=1200, bbox_inches='tight')
+    fig.savefig(fr"{filename}", dpi=1200, bbox_inches='tight')
+    
+def save_plot(fig, filename_base, folder="PLOTS"):
+    """
+    Save a figure as both PNG and PDF using save_figure.
+    """
+    os.makedirs(folder, exist_ok=True)
+
+    png_path = os.path.join(folder, f"{filename_base}.png")
+    pdf_path = os.path.join(folder, f"{filename_base}.pdf")
+
+    save_figure(fig, png_path)
+    save_figure(fig, pdf_path)
+
+def VLE_DFT_summary(VLE_DFT):
+    """
+    Print a summary of VLE-DFT data structure.
+    
+    Parameters
+    ----------
+    VLE_DFT : dict
+        Dictionary containing VLE data with structure:
+        {feed_key: {
+            "interfacial_data": {T_K: [data_dicts, ...]},
+            "phase_envelope": {
+                "bubble_curve": [...],
+                "dew_curve": [...],
+                "isothermal_lines": [...]
+            }
+        }}
+    
+    Returns
+    -------
+    dict
+        Summary statistics for each feed:
+        {feed_key: {
+            "n_bubble_points": int,
+            "n_dew_points": int,
+            "n_isotherms": int,
+            "total_interfacial_points": int
+        }}
+    """
+    print("Available feeds:", list(VLE_DFT.keys()))
+    
+    summary = {}
+    
+    for feed_key in VLE_DFT:
+        n_bubble = len(VLE_DFT[feed_key]["phase_envelope"]["bubble_curve"])
+        n_dew = len(VLE_DFT[feed_key]["phase_envelope"]["dew_curve"])
+        n_temps = len(VLE_DFT[feed_key]["interfacial_data"])
+        
+        # Count total interfacial data points
+        total_interfacial = sum(
+            len(data_list) 
+            for data_list in VLE_DFT[feed_key]["interfacial_data"].values()
+        )
+        
+        print(f"{feed_key}: {n_bubble} bubble pts, {n_dew} dew pts, {n_temps} isotherms, {total_interfacial} interfacial pts")
+        
+        summary[feed_key] = {
+            "n_bubble_points": n_bubble,
+            "n_dew_points": n_dew,
+            "n_isotherms": n_temps,
+            "total_interfacial_points": total_interfacial
+        }
+    
+    return summary
+
+def VLE_DFT_to_csv(VLE_DFT, verbose: bool = False):
+    """Save VLE-DFT interfacial and phase envelope data to CSV files."""
+    saved_files = {}
+    
+    for feed_key in VLE_DFT:
+        # Save interfacial data
+        all_data = []
+        for T_K, data_list in VLE_DFT[feed_key]["interfacial_data"].items():
+            all_data.extend(data_list)
+        
+        df = pd.DataFrame(all_data)
+        csv_filename = f"{feed_key}_interfacial_results.csv"
+        df.to_csv(csv_filename, index=False)
+        
+        if verbose:
+            print(f"Saved {len(df)} rows to {csv_filename}")
+        
+        # Save phase envelope (isothermal lines only)
+        envelope_filename = f"{feed_key}_phase_envelope.csv"
+        pd.DataFrame(VLE_DFT[feed_key]["phase_envelope"]["isothermal_lines"]).to_csv(
+            envelope_filename, index=False
+        )
+        
+        saved_files[feed_key] = {
+            "interfacial": csv_filename,
+            "envelope": envelope_filename
+        }
+    
+    return saved_files
+   
 ######################## PT PLOT SETTINGS #########################  
 def plot_PT(PT_results, feed_key, parameters):
     """
@@ -271,7 +360,7 @@ def plot_PT(PT_results, feed_key, parameters):
     Includes critical point.
     """
     if feed_key not in PT_results:
-        raise KeyError(f"{feed_key} not found in results.")
+        raise KeyError(f"{feed_key} not found in PT_results dict.")
 
     feed_data = PT_results[feed_key]
 
@@ -297,7 +386,9 @@ def plot_PT(PT_results, feed_key, parameters):
     ax.plot([T_dew[-1], Tc] , [P_dew[-1], Pc], linestyle="-", linewidth=ps.linewidth, color="red")
 
     # Critical point marker
-    ax.scatter(Tc, Pc, marker="o", s=40, zorder=4, label="Critical point")
+    ax.plot(Tc, Pc, 'o', markersize=4, zorder=4, 
+               markerfacecolor="grey", markeredgewidth=1, markeredgecolor="black", 
+               label="Critical point")
 
     ax.set_xlabel("$T$  / [K]", fontsize=ps.label_fontsize)
     ax.set_ylabel("$P$  / [bar]", fontsize=ps.label_fontsize)
@@ -313,6 +404,136 @@ def plot_PT(PT_results, feed_key, parameters):
     fig.tight_layout()
     
     return fig,ax
+
+def plot_gamma_colormap(PT_results, VLE_DFT, feed_key, parameters):
+    """
+    Create a colormap plot of interfacial tension in PT space.
+    
+    Parameters
+    ----------
+    VLE_DFT : dict
+        Full VLE dictionary containing phase envelope and interfacial data:
+        {"T_K": list, "P_bar": list, "gamma_mN_m": list, "stats": dict}
+    feed_key : str
+        Feed composition identifier
+    parameters : dict
+        Plot parameters (colors, fonts, etc.)
+    
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        Figure object containing the colormap plot
+    """
+    if feed_key not in PT_results:
+        raise KeyError(f"{feed_key} not found in PT_results dict.")
+    
+    feed_data = PT_results[feed_key]
+    
+    C_1, C_2, C_3 = components(parameters)
+        
+    # Extract phase envelope
+    bubble_data = VLE_DFT[feed_key]["phase_envelope"]["bubble_curve"]
+    dew_data    = VLE_DFT[feed_key]["phase_envelope"]["dew_curve"]
+    T_bubble    = [pt["T_K"] for pt in bubble_data]
+    P_bubble    = [pt["P_bar"] for pt in bubble_data]
+    T_dew       = [pt["T_K"] for pt in dew_data]
+    P_dew       = [pt["P_bar"] for pt in dew_data]
+    
+    Tc          = feed_data["TC_K"]
+    Pc          = feed_data["PC_bar"] 
+    z           = feed_data["z"]
+    
+    # Extract interfacial tension data
+    T_gamma, P_gamma, gamma_data = [], [], []
+    for T_K, data_list in VLE_DFT[feed_key]["interfacial_data"].items():
+        for point in data_list:
+            if "gamma_mN_m" in point and not np.isnan(point["gamma_mN_m"]):
+                T_gamma.append(point["T_K"])
+                P_gamma.append(point["P_bar"])
+                gamma_data.append(point["gamma_mN_m"])
+    
+    if len(gamma_data) < 4:
+        print(f"Warning: Insufficient data for {feed_key}")
+        return None
+    
+    # Create figure
+    fig, ax = ps.plot_init()
+    
+    # Grid generation
+    grid_size       = 100
+    T_grid          = np.linspace(min(T_gamma), max(T_gamma), grid_size)
+    P_grid          = np.linspace(min(P_gamma), max(P_gamma), grid_size )
+    T_mesh, P_mesh  = np.meshgrid(T_grid, P_grid)
+    
+    #Interpolation
+    gamma_mesh      = griddata((T_gamma, P_gamma), gamma_data, (T_mesh, P_mesh), 
+                         method='cubic', fill_value=np.nan)  # CUBIC interpolation (linear, nearest)
+    
+    # Mask regions outside phase envelope
+    envelope_T      = T_bubble + T_dew[::-1]
+    envelope_P      = P_bubble + P_dew[::-1]
+    envelope_path   = Path(np.column_stack([envelope_T, envelope_P]))
+    
+    grid_points     = np.column_stack([T_mesh.ravel(), P_mesh.ravel()])
+    inside          = envelope_path.contains_points(grid_points).reshape(T_mesh.shape)
+    gamma_masked    = np.ma.masked_where(~inside, gamma_mesh)
+    
+    gamma_min       = np.nanmin(gamma_masked)
+    gamma_max       = np.nanmax(gamma_masked)
+
+    # Isoline levels
+    levels_lines    = [2*n + 1 for n in range(10)]
+    levels_lines    = [lev for lev in levels_lines if gamma_min <= lev <= gamma_max]
+
+    # Color bands
+    levels          = np.linspace(gamma_min, gamma_max, 35)
+    contour         = ax.contourf(T_mesh, P_mesh, gamma_masked, levels=levels, 
+                                 cmap=plt.cm.Blues, extend='both')
+    
+    # Contour lines
+    # Erode the mask slightly to avoid edge artifacts
+    inside_eroded   = binary_erosion(inside, iterations=2)
+    gamma_masked    = np.ma.masked_where(~inside_eroded, gamma_mesh)
+
+    # Now create contours - they won't extend as far outside
+    contour_lines   = ax.contour(T_mesh, P_mesh, gamma_masked, levels=levels_lines,
+                            colors='black', linewidths=ps.linewidth/2, alpha=0.6)
+
+    ax.clabel(contour_lines, levels=levels_lines, inline=True,
+            fontsize=ps.label_fontsize/2, fmt='%.0f',
+            inline_spacing= 15, rightside_up=True)
+        
+    # ax.clabel(contour_lines, levels=levels_lines, inline=True, 
+    #         fontsize=ps.label_fontsize/2, fmt='%.0f',inline_spacing=5, rightside_up=True)
+    
+    # Colorbar legend
+    cbar = fig.colorbar(contour, ax=ax, pad=0.02,  format='%.0f')
+    cbar.set_ticks(levels_lines)
+    cbar.set_label(r'$\gamma$ [mN/m]', fontsize=ps.label_fontsize)
+    cbar.ax.tick_params(labelsize=10) 
+    
+    # Phase envelope curves
+    ax.plot(T_bubble, P_bubble, 'b-', linewidth=ps.linewidth, label='Bubble curve', zorder=10)
+    ax.plot(T_dew, P_dew, 'r-', linewidth=ps.linewidth, label='Dew curve', zorder=10)
+    ax.plot([T_dew[-1], Tc] , [P_dew[-1], Pc], linestyle="-", linewidth=ps.linewidth, color="red")
+
+    # Critical point
+    ax.plot(Tc, Pc, 'o', markersize=4, zorder=15, markerfacecolor="grey", 
+        markeredgewidth=1, markeredgecolor="black", label="Critical point")
+    
+    # Labels
+    ax.set_xlabel(f'$T$ / [K]', fontsize=ps.label_fontsize)
+    ax.set_ylabel(f'$P$ / [bar]', fontsize=ps.label_fontsize)
+    ps.style_legend(ax,fontsize=ps.legend_fontsize, loc='best', framealpha=0)
+    
+    z_str = ", ".join(f"{comp}={val:.2f}" for comp, val in zip([latex_formula(C_1), 
+            latex_formula(C_2), latex_formula(C_3)], z))
+    ax.set_title(f"{z_str}", fontsize=ps.label_fontsize/2)
+    ax.set_xlim(left=200)
+    ax.minorticks_on()
+    
+    plt.tight_layout()
+    return fig
 
 ######################## TERNARY PLOT SETTINGS #####################
 def plot_ternary_vle(rows,feeds,components,*,permutation="210",
@@ -415,6 +636,3 @@ def plot_ternary_vle(rows,feeds,components,*,permutation="210",
         plt.show()
 
     return fig, tax
-
-    
-    
