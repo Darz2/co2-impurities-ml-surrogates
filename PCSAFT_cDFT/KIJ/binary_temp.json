@@ -1,0 +1,11 @@
+[
+    {
+        "id1": {
+            "name": "argon"
+        },
+        "id2": {
+            "name": "carbon dioxide"
+        },
+        "k_ij": 0.0
+    }
+]

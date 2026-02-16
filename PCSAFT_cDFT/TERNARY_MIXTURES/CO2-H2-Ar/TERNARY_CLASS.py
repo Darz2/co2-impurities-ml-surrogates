@@ -6,7 +6,7 @@ from molmass import Formula
 sys.path.append("..")
 import PLOT_SETTINGS as ps
 
-# FOr colormaps
+# For colormaps
 from matplotlib.colors import Normalize
 from scipy.interpolate import griddata
 from matplotlib.path import Path
@@ -24,15 +24,25 @@ def print_array2d(feeds, decimals=4):
         row_str = " ".join(f"{val:12.4f}" for val in row)
         print(f"{i:3d} | {row_str}")
 
-def formula_from_inchi(inchi: str) -> str:
+def formula_from_inchi(inchi) -> str:
     """
     Extract chemical formula from an InChI string.
-    Example: 'InChI=1S/CO2/c2-1-3' -> 'CO2'
+    Accepts InChI=1S/... and InChI=1/...
     """
-    try:
-        return inchi.split("InChI=1S/")[1].split("/")[0]
-    except Exception:
-        raise ValueError(f"Cannot parse formula from InChI: {inchi}")
+    if inchi is None:
+        raise ValueError("InChI is None")
+
+    s = str(inchi).strip()
+
+    if not s.startswith("InChI="):
+        raise ValueError(f"Not an InChI string: {s}")
+
+    # InChI format: InChI=1S/<formula>/<rest...>  OR  InChI=1/<formula>/<rest...>
+    parts = s.split("/", 2)
+    if len(parts) < 2:
+        raise ValueError(f"Cannot parse formula from InChI: {s}")
+
+    return parts[1]
     
 def components(parameters):
     """
@@ -44,10 +54,24 @@ def components(parameters):
     tuple of str
         (c1, c2, c3) chemical formulas in FEOS component order.
     """
-    component_labels = [
-        formula_from_inchi(pr.identifier.inchi)
-        for pr in parameters.pure_records
-    ]
+    component_labels = []
+    
+    for pr in parameters.pure_records:
+        identifier = pr.identifier
+        if hasattr(identifier, '__dict__'):
+            inchi_str = identifier.__dict__['inchi']
+        else:
+            # Parse from string representation
+            id_str = str(identifier)
+            # Extract inchi from "Identifier(cas=..., inchi=InChI=1S/...)"
+            import re
+            match = re.search(r'inchi=(InChI=[^,)]+)', id_str)
+            if match:
+                inchi_str = match.group(1)
+            else:
+                raise ValueError(f"Cannot extract InChI from: {id_str}")
+        
+        component_labels.append(formula_from_inchi(inchi_str))
 
     if len(component_labels) != 3:
         raise ValueError(
@@ -495,7 +519,6 @@ def plot_gamma_colormap(PT_results, VLE_DFT, feed_key, parameters):
     inside_eroded   = binary_erosion(inside, iterations=2)
     gamma_masked    = np.ma.masked_where(~inside_eroded, gamma_mesh)
 
-    # Now create contours - they won't extend as far outside
     contour_lines   = ax.contour(T_mesh, P_mesh, gamma_masked, levels=levels_lines,
                             colors='black', linewidths=ps.linewidth/2, alpha=0.6)
 
@@ -533,6 +556,7 @@ def plot_gamma_colormap(PT_results, VLE_DFT, feed_key, parameters):
     ax.minorticks_on()
     
     plt.tight_layout()
+    
     return fig
 
 ######################## TERNARY PLOT SETTINGS #####################

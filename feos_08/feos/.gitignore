@@ -1,0 +1,7 @@
+Cargo.lock
+target
+docs/_build
+docs/api/generated
+.ipynb_checkpoints
+__pycache__
+*.so

@@ -1,0 +1,55 @@
+name: Deploy Documentation
+
+on:
+  push:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-documentation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+      - name: Install pandoc
+        run: sudo apt-get install -y pandoc
+      - name: Install python dependencies
+        run: |
+          pip install sphinx nbsphinx ipython pygments sphinx_inline_tabs sphinx_design sphinx_copybutton myst_parser furo si_units
+      - name: Build Wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          manylinux: auto
+          command: build
+          args: --release --out dist
+      - name: Install module
+        run: |
+          pip install feos --no-index --find-links dist --force-reinstall
+      - name: Build documentation
+        run: sphinx-build docs/ public/ -b html
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation
+          path: public
+
+  release-documentation:
+    needs: [build-documentation]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: documentation
+          path: public
+      - name: Deploy documentation to gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+
