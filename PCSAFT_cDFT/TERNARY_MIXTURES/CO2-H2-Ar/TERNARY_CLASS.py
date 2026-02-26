@@ -2,9 +2,19 @@
 
 ############# Required Packages ############
 import numpy as np, feos, ternary, matplotlib.pyplot as plt, os, re, sys, pandas as pd, si_units as si
-from molmass import Formula
+from pathlib import Path
+# from molmass import Formula
+
 sys.path.append("..")
 import PLOT_SETTINGS as ps
+
+sys.path.append(str(Path(__file__).parent / "../BINARY_INTERCTION_PARAMETERS/KIJ"))
+try:
+    import BinaryInteractions as KIJ
+    from BinaryInteractions import KIJMatrixBuilder
+except ImportError:
+    KIJ = None
+    KIJMatrixBuilder = None
 
 # For colormaps
 from matplotlib.colors import Normalize
@@ -164,6 +174,164 @@ def density_kg_m3(rho_molar, z, molar_masses, molar_mass_unit="g/mol"):
     rho_mol_m3 = molar_density_mol_m3(rho_molar)
     M_mix = np.sum(z * M)
     return rho_mol_m3 * M_mix
+
+########### Parameters ###########
+
+def PARAMETERS(
+    component_names: list[str],
+    T_K: float | None = None,
+    kij_builder=None,
+    model_map: dict | None = None,
+) -> feos.Parameters:
+    """
+    Build a feos.Parameters object from inline PC-SAFT parameters,
+    optionally loading T-dependent kij(T) from a KIJMatrixBuilder.
+
+    Parameters
+    ----------
+    component_names : list[str]
+        Ordered component names, e.g. ["carbon dioxide", "hydrogen", "argon"].
+        Order determines component indices throughout the calculation.
+    T_K : float, optional
+        Temperature in Kelvin at which to evaluate kij(T).
+        Required when kij_builder is provided, ignored otherwise.
+    kij_builder : KIJMatrixBuilder, optional
+        If provided, loads kij polynomials from KIJ.json files and evaluates
+        at T_K. If None, all kij = 0.
+    model_map : dict, optional
+        Passed to KIJMatrixBuilder.load_ternary_pairs().
+        e.g. {("CO2", "Ar"): "constant", ("H2", "Ar"): "linear"}
+
+    Returns
+    -------
+    feos.Parameters
+
+    Raises
+    ------
+    ValueError
+        If unknown component names are provided.
+        If kij_builder is provided but T_K is None.
+
+    Examples
+    --------
+    >>> # Without kij
+    >>> params = parameters(["carbon dioxide", "hydrogen", "argon"])
+
+    >>> # With T-dependent kij
+    >>> builder = KIJ.KIJMatrixBuilder(root="Kij/")
+    >>> params = parameters(
+    ...     ["carbon dioxide", "hydrogen", "argon"],
+    ...     T_K=300.0,
+    ...     kij_builder=builder,
+    ...     model_map={("CO2", "Ar"): "constant", ("H2", "Ar"): "linear", ("CO2", "H2"): "linear"},
+    ... )
+    """
+    # --- Guard ---
+    if kij_builder is not None and T_K is None:
+        raise ValueError("T_K must be provided when using kij_builder.")
+
+    _REGISTRY: dict[str, feos.PureRecord] = {
+        "carbon dioxide": feos.PureRecord(
+            feos.Identifier(cas='124-38-9', name='carbon dioxide', iupac_name='carbon dioxide'),
+            molarweight=43.99, m=2.53096, sigma=2.57855, epsilon_k=153.31864),
+        "hydrogen": feos.PureRecord(
+            feos.Identifier(cas='1333-74-0', name='hydrogen', iupac_name='molecular hydrogen'),
+            molarweight=2.016, m=1.0, sigma=3.002, epsilon_k=51.343),
+        "nitrogen": feos.PureRecord(
+            feos.Identifier(cas='7727-37-9', name='nitrogen', iupac_name='molecular nitrogen'),
+            molarweight=28.006, m=1.23831, sigma=3.30009, epsilon_k=89.41358,
+            association_sites=[{"nb": 2}]),
+        "argon": feos.PureRecord(
+            feos.Identifier(cas='7440-37-1', name='argon', iupac_name='argon'),
+            molarweight=39.962, m=1.0, sigma=3.37751, epsilon_k=117.80903),
+        "methane": feos.PureRecord(
+            feos.Identifier(cas='74-82-8', name='methane', iupac_name='methane'),
+            molarweight=16.031, m=1.0, sigma=3.70051, epsilon_k=150.07147),
+        "oxygen": feos.PureRecord(
+            feos.Identifier(cas='7782-44-7', name='oxygen', iupac_name='molecular oxygen'),
+            molarweight=31.99, m=1.14702, sigma=3.17933, epsilon_k=113.62724,
+            association_sites=[{"nb": 2}]),
+        "water": feos.PureRecord(
+            feos.Identifier(cas='7732-18-5', name='water', iupac_name='oxidane'),
+            molarweight=18.011, m=2.36948, sigma=2.15072, epsilon_k=230.71557,
+            association_sites=[{"na": 1, "nb": 1, "kappa_ab": 0.35319, "epsilon_k_ab": 2195.10176}]),
+        "carbon monoxide": feos.PureRecord(
+            feos.Identifier(cas='630-08-0', name='carbon monoxide', iupac_name='carbon monoxide'),
+            molarweight=27.995, m=1.32286, sigma=3.24532, epsilon_k=91.17087),
+        "nitrogen dioxide": feos.PureRecord(
+            feos.Identifier(cas='10102-44-0', name='nitrogen dioxide', iupac_name='nitrogen dioxide'),
+            molarweight=45.993, m=5.4723, sigma=1.9, epsilon_k=168.28084,
+            association_sites=[{"nb": 2}]),
+        "nitric oxide": feos.PureRecord(
+            feos.Identifier(cas='10102-43-9', name='nitric oxide', iupac_name='nitric oxide'),
+            molarweight=29.998, m=4.12115, sigma=1.9, epsilon_k=77.07314,
+            association_sites=[{"nb": 1}]),
+        "sulfur dioxide": feos.PureRecord(
+            feos.Identifier(cas='7446-09-5', name='sulfur dioxide', iupac_name='sulfur dioxide'),
+            molarweight=63.962, m=2.69291, sigma=2.73194, epsilon_k=203.03892, mu=1.63,
+            association_sites=[{"nb": 2}]),
+        "hydrogen sulfide": feos.PureRecord(
+            feos.Identifier(cas='7783-06-4', name='hydrogen sulfide', iupac_name='sulfane'),
+            molarweight=33.988, m=1.63175, sigma=3.06168, epsilon_k=227.15574, mu=0.97),
+        "propane": feos.PureRecord(
+            feos.Identifier(cas='74-98-6', name='propane', iupac_name='propane'),
+            molarweight=44.063, m=1.98602, sigma=3.6244, epsilon_k=209.08586),
+        "ethane": feos.PureRecord(
+            feos.Identifier(cas='74-84-0', name='ethane', iupac_name='ethane'),
+            molarweight=30.047, m=1.60689, sigma=3.51681, epsilon_k=191.45389),
+    }
+
+    # --- Validate component names ---
+    missing = [n for n in component_names if n not in _REGISTRY]
+    if missing:
+        raise ValueError(f"Unknown component(s): {missing}. Available: {sorted(_REGISTRY.keys())}")
+
+    records = [_REGISTRY[name] for name in component_names]
+
+    # --- Pure component ---
+    if len(records) == 1:
+        return feos.Parameters.new_pure(records[0])
+
+    # --- Build binary_records from kij_pairs ---
+    binary_records = []
+
+    if kij_builder is not None:
+        _DEFAULT_KIJ_LABELS = {
+            "carbon dioxide":   "CO2",
+            "hydrogen":         "H2",
+            "nitrogen":         "N2",
+            "argon":            "Ar",
+            "methane":          "CH4",
+            "oxygen":           "O2",
+            "water":            "H2O",
+            "carbon monoxide":  "CO",
+            "nitrogen dioxide": "NO2",
+            "nitric oxide":     "NO",
+            "sulfur dioxide":   "SO2",
+            "hydrogen sulfide": "H2S",
+            "propane":          "C3H8",
+            "ethane":           "C2H6",
+        }
+
+        kij_labels      = [_DEFAULT_KIJ_LABELS[n] for n in component_names]
+        label_to_record = dict(zip(kij_labels, records))
+
+        pair_data   = kij_builder.load_ternary_pairs(kij_labels, model_map=model_map)
+        _, A, _     = KIJ.KIJMatrixBuilder.build_ternary_polynomial_tensor(kij_labels, pair_data)
+        K           = KIJ.KIJMatrixBuilder.kij_numeric_matrix(T_K, A)
+
+        from itertools import combinations
+        for (la, lb) in combinations(kij_labels, 2):
+            i       = kij_labels.index(la)
+            j       = kij_labels.index(lb)
+            binary_records.append(feos.BinaryRecord(
+                id1=label_to_record[la].identifier,
+                id2=label_to_record[lb].identifier,
+                k_ij=float(K[i, j]),
+            ))
+
+    return feos.Parameters.from_records(records, binary_records=binary_records)
+
 
 ########### VLE computations ############
 def compute_bubble_curve(eos, T_vals, feed, verbose):
@@ -560,6 +728,7 @@ def plot_gamma_colormap(PT_results, VLE_DFT, feed_key, parameters):
     return fig
 
 ######################## TERNARY PLOT SETTINGS #####################
+
 def plot_ternary_vle(rows,feeds,components,*,permutation="210",
     scale=1.0,
     figsize=(7, 6.5),
