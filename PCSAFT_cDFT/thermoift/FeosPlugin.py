@@ -1,3 +1,19 @@
+"""
+FeosPlugin.py
+=============
+Utilities for PC-SAFT phase equilibrium and cDFT interfacial tension
+calculations for N-component mixtures using the feos framework.
+
+Modules
+-------
+- Feed generation and normalization
+- Parameter building with T-dependent kij
+- VLE: bubble/dew curves, critical point, TP flash
+- cDFT: planar interface, Interfacial tension, Interfacial thickness, interfacial enrichment
+- Results storage and CSV export
+- PT and gamma colormap plotting
+"""
+
 #!/usr/bin/env python
 ############# Required Packages ############
 
