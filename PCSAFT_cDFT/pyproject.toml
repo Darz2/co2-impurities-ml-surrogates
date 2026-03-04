@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "thermoift"
+version = "0.2.0"
+description = "Thermodynamics and Interfacial Tension tools for N-component mixtures using PC-SAFT via feos"
+
+dependencies = [
+    "feos==0.9.3",
+    "numpy",
+    "pandas",
+    "matplotlib",
+    "scipy",
+    "molmass",
+    "si-units",
+    "sympy",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]

@@ -1,0 +1,8 @@
+feos==0.9.3
+numpy
+pandas
+matplotlib
+scipy
+molmass
+si-units
+sympy
