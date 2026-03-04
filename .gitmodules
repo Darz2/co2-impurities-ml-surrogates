@@ -1,3 +1,6 @@
 [submodule "PCSAFT_cDFT/thermoift/BINARY_INTERACTION_PARAMETERS"]
 	path = PCSAFT_cDFT/thermoift/BINARY_INTERACTION_PARAMETERS
 	url = https://github.com/Darz2/BINARY_INTERCTION_PARAMETERS.git
+[submodule "PCSAFT_cDFT/submodule.parachorpy"]
+	path = PCSAFT_cDFT/submodule.parachorpy
+	url = https://github.com/darz2/parachorpy.git
