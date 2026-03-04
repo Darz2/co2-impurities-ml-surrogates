@@ -7,3 +7,6 @@
 [submodule "PCSAFT_cDFT/parachorpy"]
 	path = PCSAFT_cDFT/parachorpy
 	url = https://github.com/darz2/parachorpy.git
+[submodule "feos_09/feos"]
+	path = feos_09/feos
+	url = https://github.com/feos-org/feos.git
