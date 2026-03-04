@@ -4,3 +4,6 @@
 [submodule "PCSAFT_cDFT/submodule.parachorpy"]
 	path = PCSAFT_cDFT/submodule.parachorpy
 	url = https://github.com/darz2/parachorpy.git
+[submodule "PCSAFT_cDFT/parachorpy"]
+	path = PCSAFT_cDFT/parachorpy
+	url = https://github.com/darz2/parachorpy.git
