@@ -3,6 +3,7 @@
 ############# Required Packages ############
 import matplotlib.pyplot as plt, scienceplots, matplotlib.colors as mcolors, os
 import matplotlib as mpl
+from matplotlib.ticker import AutoMinorLocator
 
 ############# Set LaTeX for text rendering ############
 mpl.rcParams['text.usetex'] = True
@@ -64,11 +65,13 @@ minor_tick_width    = 0.5
 minor_tick_length   = 2
 tick_labelsize      = 10
 legend_fontsize     = 8
+title_fontsize      = 12
 legend_boxwidth     = 0.75
 label_fontsize      = 14
 borderaxespad       = 0.6
 alpha               = 0.5
 resolution_value    = 1200
+map                = "coolwarm"  # colormap for scatter plots (e.g., 'viridis', 'plasma', 'coolwarm', etc.)
 
 ############# FUNCTION TO PROCESS COLORS ############
 def face_colors(colors, alpha):
@@ -163,7 +166,34 @@ def style_legend(
 
     return legend
 
+def apply_axis_style(ax):
+    """Apply the same styling as plot_init() to an existing axis."""
+    # Set spine widths
+    for spine in ax.spines.values():
+        spine.set_linewidth(spine_width)
 
+    ax.tick_params(
+        axis='both', which='major', direction='in',
+        width=tick_width, length=tick_length,
+        labelsize=tick_labelsize,
+        bottom=True, top=True, left=True, right=True
+    )
+    ax.tick_params(
+        axis='both', which='minor', direction='in',
+        width=minor_tick_width, length=minor_tick_length,
+        bottom=True, top=True, left=True, right=True
+    )
+
+def style_colorbar(cbar):
+    cbar.ax.tick_params(
+        width=tick_width, length=tick_length,
+        labelsize=tick_labelsize
+    )
+    try:
+        cbar.outline.set_linewidth(spine_width)
+    except Exception:
+        pass
+       
 def save_figure(fig, filename):
     """Saves the figure with the predefined resolution."""
     output_dir = os.getcwd()

@@ -8,6 +8,16 @@ KIJ_A5/src/json_transform.py
 TERNARY_MIXTURES/CO2-H2-Ar/TERNARY_CLASS.py
 TEST_BM/PLOT_SETTINGS.py
 TEST_TM/PLOT_SETTINGS.py
+parachorpy/examples/CNT_BINARY.py
+parachorpy/examples/IFT_Pxy.py
+parachorpy/examples/IFT_TP.py
+parachorpy/examples/IFT_mixtures.py
+parachorpy/examples/TEST_2026.py
+parachorpy/src/parachorpy/__init__.py
+parachorpy/src/parachorpy/parachor.py
+parachorpy/tests/test_compute_sigma_mixture.py
+parachorpy/tests/test_compute_sigma_pure.py
+parachorpy/tests/test_parachor_number.py
 thermoift/FeosPlugin.py
 thermoift/PLOT_SETTINGS.py
 thermoift/__init__.py
