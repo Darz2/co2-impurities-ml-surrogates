@@ -273,7 +273,7 @@ def reduce_components(z, components, verbose=False):
 
     if is_reduced and verbose:
         n = len(active_components)
-        print(f"  -> Reduced to {n}-component system: {active_components}")
+        print(f"  --- Reduced to {n}-component system: {active_components}")
 
     return active_z, active_components, is_reduced
 
@@ -495,14 +495,48 @@ def solve_interface_properties(interface, si):
 
 ######################## Append and save data #########################
 
-def row_append(x, y, liquid_density, vapor_density, critical_temperature,
-               gamma_mN_m, interfacial_thickness_nm, components, enrichment):
+def row_append(
+    T_K,
+    P_bar,
+    z,
+    Tc,
+    Pc,
+    P_bubble,
+    P_dew,
+    liquid_density,
+    vapor_density,
+    x,
+    y,
+    gamma_mN_m,
+    interfacial_thickness_nm,
+    components,
+    enrichment
+    ):
+    
     """
     Build a results dictionary for one composition case.
     Works for any number of components (binary, ternary, etc.)
 
     Parameters
     ----------
+    T_K : float
+        Temperature [K].
+    P_bar : float
+        Pressure [bar].
+    z : array-like
+        Overall mole fractions.
+    Tc : float
+        Critical temperature [K].
+    Pc : float
+        Critical pressure [bar].
+    P_bubble : float
+        Bubble point pressure [bar].
+    P_dew : float
+        Dew point pressure [bar].
+    liquid_density : float
+        Liquid density [kg/m3].
+    vapor_density : float
+        Vapor density [kg/m3].
     x : array-like
         Liquid phase mole fractions.
     y : array-like
@@ -513,6 +547,8 @@ def row_append(x, y, liquid_density, vapor_density, critical_temperature,
         Vapor density [kg/m3].
     critical_temperature : float
         Critical temperature [K * si.KELVIN].
+    critical pressure : float
+        Critical pressure [bar * si.BAR].
     gamma_mN_m : float
         Surface tension [mN/m].
     interfacial_thickness_nm : float
@@ -529,18 +565,38 @@ def row_append(x, y, liquid_density, vapor_density, critical_temperature,
     """
     row = {}
 
+    # Thermodynamic state
+    row["temperature"]  = float(T_K)
+    row["pressure"]     = float(P_bar)
+
+    # Feed composition
+    for i, c in enumerate(components):
+        row[f"z_{c}"] = float(z[i])
+        
+    # Critical points
+    row["Tc"] = float(Tc / si.KELVIN)
+    row["Pc"] = float(Pc / si.BAR)
+    
+    # Phase envelope limits
+    row["P_bubble"] = float(P_bubble)
+    row["P_dew"]    = float(P_dew)
+
+    # Bulk densities
+    row["liquid_density"]   = float(liquid_density)
+    row["vapor_density"]    = float(vapor_density)
+
+    # Phase compositions
     for i, c in enumerate(components):
         row[f"x_{c}"] = float(x[i])
 
     for i, c in enumerate(components):
         row[f"y_{c}"] = float(y[i])
 
-    row["liquid_density_kg_m3"]    = float(liquid_density)
-    row["vapor_density_kg_m3"]     = float(vapor_density)
-    row["Tc_K"]                    = float(critical_temperature / si.KELVIN)
-    row["gamma_mN_m"]              = gamma_mN_m
-    row["interfacial_thickness_nm"] = interfacial_thickness_nm
+    # Interfacial properties
+    row["gamma"] = float(gamma_mN_m)
+    row["interfacial_thickness"] = float(interfacial_thickness_nm)
 
+    # Interfacial enrichment
     for i, c in enumerate(components):
         row[f"E_{c}"] = float(enrichment[i])
 
@@ -616,33 +672,34 @@ def VLE_DFT_summary(VLE_DFT):
     
     return summary
 
-def VLE_DFT_to_csv(VLE_DFT, verbose: bool = False):
+def VLE_DFT_to_csv(VLE_DFT, folder="CSV", verbose: bool = False):
+    
     """Save VLE-DFT interfacial and phase envelope data to CSV files."""
+    os.makedirs(folder, exist_ok=True)
     saved_files = {}
     
     for feed_key in VLE_DFT:
+        
         # Save interfacial data
         all_data = []
         for T_K, data_list in VLE_DFT[feed_key]["interfacial_data"].items():
             all_data.extend(data_list)
         
         df = pd.DataFrame(all_data)
-        csv_filename = f"{feed_key}_interfacial_results.csv"
+        csv_filename = os.path.join(folder, f"{feed_key}_interfacial_results.csv")
         df.to_csv(csv_filename, index=False)
         
         if verbose:
             print(f"Saved {len(df)} rows to {csv_filename}")
         
         # Save phase envelope (isothermal lines only)
-        envelope_filename = f"{feed_key}_phase_envelope.csv"
+        envelope_filename = os.path.join(folder, f"{feed_key}_phase_envelope.csv")
         pd.DataFrame(VLE_DFT[feed_key]["phase_envelope"]["isothermal_lines"]).to_csv(
-            envelope_filename, index=False
-        )
+            envelope_filename, index=False)
         
         saved_files[feed_key] = {
             "interfacial": csv_filename,
-            "envelope": envelope_filename
-        }
+            "envelope": envelope_filename}
     
     return saved_files
    
@@ -683,8 +740,8 @@ def plot_PT(PT_results, feed_key, parameters):
                markerfacecolor="grey", markeredgewidth=1, markeredgecolor="black", 
                label="Critical point")
 
-    ax.set_xlabel(r'$T \; / \; \mathrm{K}$', fontsize=ps.label_fontsize)
-    ax.set_ylabel(r'$P \; / \; \mathrm{bar}$', fontsize=ps.label_fontsize)
+    ax.set_xlabel(r'$T \; / \; [\mathrm{K}]$', fontsize=ps.label_fontsize)
+    ax.set_ylabel(r'$P \; / \; [\mathrm{bar}]$', fontsize=ps.label_fontsize)
     
     ax.set_xlim(left=200)
     
@@ -706,7 +763,7 @@ def plot_gamma_colormap(PT_results, VLE_DFT, feed_key, parameters):
     ----------
     VLE_DFT : dict
         Full VLE dictionary containing phase envelope and interfacial data:
-        {"T_K": list, "P_bar": list, "gamma_mN_m": list, "stats": dict}
+        {"tmeperature": list, "pressure": list, "gamma": list, "stats": dict}
     feed_key : str
         Feed composition identifier
     parameters : dict
@@ -737,15 +794,16 @@ def plot_gamma_colormap(PT_results, VLE_DFT, feed_key, parameters):
     
     # Extract interfacial tension data
     T_gamma, P_gamma, gamma_data = [], [], []
+    
     for T_K, data_list in VLE_DFT[feed_key]["interfacial_data"].items():
         for point in data_list:
-            if "gamma_mN_m" in point and not np.isnan(point["gamma_mN_m"]):
-                T_gamma.append(point["T_K"])
-                P_gamma.append(point["P_bar"])
-                gamma_data.append(point["gamma_mN_m"])
+            if "gamma" in point and not np.isnan(point["gamma"]):
+                T_gamma.append(point["temperature"])
+                P_gamma.append(point["pressure"])
+                gamma_data.append(point["gamma"])
     
     if len(gamma_data) < 4:
-        print(f"Warning: Insufficient data for {feed_key}")
+        print(f"Warning: Insufficient data for {feed_key} to create colormap (need at least 4 points).")
         return None
     
     # Create figure
@@ -800,7 +858,7 @@ def plot_gamma_colormap(PT_results, VLE_DFT, feed_key, parameters):
     # Colorbar legend
     cbar = fig.colorbar(contour, ax=ax, pad=0.02,  format='%.0f')
     cbar.set_ticks(levels_lines)
-    cbar.set_label(r'$\gamma \; / \; \mathrm{mN \, m^{-1}}$', fontsize=ps.label_fontsize)
+    cbar.set_label(r'$\gamma \; / \; [\mathrm{mN \, m^{-1}}]$', fontsize=ps.label_fontsize)
     cbar.ax.tick_params(labelsize=10) 
     
     # Phase envelope curves
@@ -813,8 +871,8 @@ def plot_gamma_colormap(PT_results, VLE_DFT, feed_key, parameters):
         markeredgewidth=1, markeredgecolor="black", label="Critical point")
     
     # Labels
-    ax.set_xlabel(r'$T \; / \; \mathrm{K}$', fontsize=ps.label_fontsize)
-    ax.set_ylabel(r'$P \; / \; \mathrm{bar}$', fontsize=ps.label_fontsize)
+    ax.set_xlabel(r'$T \; / \; [\mathrm{K}]$', fontsize=ps.label_fontsize)
+    ax.set_ylabel(r'$P \; / \; [\mathrm{bar}]$', fontsize=ps.label_fontsize)
     ps.style_legend(ax,fontsize=ps.legend_fontsize, loc='best', framealpha=0)
     
     z_str = ", ".join(f"{latex_formula(c)}={val:g}" for c, val in zip(comps, z))

@@ -2,6 +2,6 @@
 
 # git init
 git add *
-git commit -m "ML -begining"
+git commit -m "ML -PySR model"
 # git remote add origin https://github.com/Darz2/A6.git
 git push -u origin master

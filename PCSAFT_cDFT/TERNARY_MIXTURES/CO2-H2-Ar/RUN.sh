@@ -3,6 +3,7 @@
 #SBATCH --job-name=cDFT_TERNARY-(CO2-H2-Ar)
 #SBATCH --partition=serial
 #SBATCH --time=6:00:00
+#SBATCH --exclude=c171
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem-per-cpu=2G
