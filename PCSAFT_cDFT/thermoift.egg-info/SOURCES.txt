@@ -21,6 +21,7 @@ parachorpy/tests/test_parachor_number.py
 thermoift/FeosPlugin.py
 thermoift/PLOT_SETTINGS.py
 thermoift/__init__.py
+thermoift/semi_emperical_correlations.py
 thermoift.egg-info/PKG-INFO
 thermoift.egg-info/SOURCES.txt
 thermoift.egg-info/dependency_links.txt
