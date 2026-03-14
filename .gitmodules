@@ -10,3 +10,6 @@
 [submodule "feos_09/feos"]
 	path = feos_09/feos
 	url = https://github.com/feos-org/feos.git
+[submodule "PCSAFT_cDFT/thermoift"]
+	path = PCSAFT_cDFT/thermoift
+	url = https://github.com/Darz2/thermoift.git
