@@ -8,7 +8,7 @@ version = "0.2.0"
 description = "Thermodynamics and Interfacial Tension tools for N-component mixtures using PC-SAFT via feos"
 
 dependencies = [
-    "feos==0.9.3",
+    "feos>=0.9.3",
     "numpy",
     "pandas",
     "matplotlib",
