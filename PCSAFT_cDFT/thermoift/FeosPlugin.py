@@ -13,22 +13,21 @@ Modules
 - Results storage and CSV export
 - PT and gamma colormap plotting
 """
-
 #!/usr/bin/env python
-############# Required Packages ############
 
+############# Required Packages ############
 import numpy as np, feos, json, matplotlib.pyplot as plt, os, re, pandas as pd, si_units as si
 from molmass import Formula
 from pathlib import Path
-_HERE = Path(__file__).parent
 from itertools import combinations
-from . import PLOT_SETTINGS as ps
-from .BINARY_INTERACTION_PARAMETERS.KIJ import BinaryInteractions as KIJ
-    
-# For colormaps
-from scipy.interpolate import griddata
+from scipy.interpolate import griddata, PchipInterpolator
 from matplotlib.path import Path as MplPath
 from scipy.ndimage import binary_erosion
+
+from . import PLOT_SETTINGS as ps
+from .BINARY_INTERACTION_PARAMETERS.KIJ import BinaryInteractions as KIJ
+
+_HERE = Path(__file__).parent
 
 ############# Helper functions ############
 
@@ -704,7 +703,25 @@ def VLE_DFT_to_csv(VLE_DFT, folder="CSV", verbose: bool = False):
     return saved_files
    
 ######################## PT PLOT SETTINGS #########################
-  
+
+def _pchip_smooth(T_raw, P_raw, Tc, Pc, n=1000, gap_tol=0.01):
+    """
+    Fit a shape-preserving PCHIP spline to the raw curve data.
+    Appends (Tc, Pc) as a hard anchor only when there is a meaningful gap
+    between the last computed point and the critical point (> gap_tol * Tc K).
+    If the last point is already within that tolerance, the anchor is skipped
+    to avoid near-duplicate T values that would force an unphysical steep segment.
+    """
+    T = np.asarray(T_raw, dtype=float)
+    P = np.asarray(P_raw, dtype=float)
+    idx = np.argsort(T)
+    T, P = T[idx], P[idx]
+    if (Tc - T[-1]) > gap_tol * Tc:
+        T = np.append(T, Tc)
+        P = np.append(P, Pc)
+    T_s = np.linspace(T.min(), T.max(), n)
+    return T_s, PchipInterpolator(T, P)(T_s)
+
 def plot_PT(PT_results, feed_key, parameters):
     """
     Plot PT phase diagram (bubble + dew) for a given feed.
@@ -728,17 +745,15 @@ def plot_PT(PT_results, feed_key, parameters):
     Pc = feed_data["PC_bar"]
     z  = feed_data["z"]
 
-    # --- Plot ---
     fig, ax = ps.plot_init()
 
-    ax.plot(T_bub, P_bub, label="Bubble curve", linestyle="-", linewidth=ps.linewidth, color="blue")
-    ax.plot(T_dew, P_dew, label="Dew curve", linestyle="-", linewidth=ps.linewidth, color="red")
-    ax.plot([T_dew[-1], Tc] , [P_dew[-1], Pc], linestyle="-", linewidth=ps.linewidth, color="red")
+    T_bub_s, P_bub_s = _pchip_smooth(T_bub, P_bub, Tc, Pc)
+    T_dew_s, P_dew_s = _pchip_smooth(T_dew, P_dew, Tc, Pc)
 
-    # Critical point marker
-    ax.plot(Tc, Pc, 'o', markersize=4, zorder=4, 
-               markerfacecolor="grey", markeredgewidth=1, markeredgecolor="black", 
-               label="Critical point")
+    ax.plot(T_bub_s, P_bub_s, label="Bubble curve", linestyle="-", linewidth=ps.linewidth, color="blue")
+    ax.plot(T_dew_s, P_dew_s, label="Dew curve", linestyle="-", linewidth=ps.linewidth, color="red")
+    ax.plot(Tc, Pc, 'o', markersize=4, zorder=4, markerfacecolor="grey", markeredgewidth=1, 
+            markeredgecolor="black", label="Critical point")
 
     ax.set_xlabel(r'$T \; / \; [\mathrm{K}]$', fontsize=ps.label_fontsize)
     ax.set_ylabel(r'$P \; / \; [\mathrm{bar}]$', fontsize=ps.label_fontsize)
@@ -815,46 +830,54 @@ def plot_gamma_colormap(PT_results, VLE_DFT, feed_key, parameters):
     P_grid          = np.linspace(min(P_gamma), max(P_gamma), grid_size )
     T_mesh, P_mesh  = np.meshgrid(T_grid, P_grid)
     
-    #Interpolation
-    gamma_mesh      = griddata((T_gamma, P_gamma), gamma_data, (T_mesh, P_mesh), 
-                         method='cubic', fill_value=np.nan)  # CUBIC interpolation (linear, nearest)
+    # Anchor gamma=0 at (Tc, Pc) — exact thermodynamic condition at the critical point
+    T_gamma_aug     = T_gamma  + [Tc]
+    P_gamma_aug     = P_gamma  + [Pc]
+    gamma_aug       = gamma_data + [0.0]
+
+    # Cubic interpolation with critical point anchor
+    gamma_mesh      = griddata((T_gamma_aug, P_gamma_aug), gamma_aug,
+                           (T_mesh, P_mesh), method='cubic', fill_value=np.nan)
+
+    # Nearest-neighbour fallback for any remaining NaN inside the envelope
+    nan_mask = np.isnan(gamma_mesh)
+    if nan_mask.any():
+        gamma_fill           = griddata((T_gamma_aug, P_gamma_aug), gamma_aug,
+                                        (T_mesh, P_mesh), method='nearest')
+        gamma_mesh[nan_mask] = gamma_fill[nan_mask]
     
     # Mask regions outside phase envelope
-    envelope_T      = T_bubble + T_dew[::-1]
-    envelope_P      = P_bubble + P_dew[::-1]
-    envelope_path   = MplPath(np.column_stack([envelope_T, envelope_P]))
+    T_bub_s, P_bub_s = _pchip_smooth(T_bubble, P_bubble, Tc, Pc)
+    T_dew_s, P_dew_s = _pchip_smooth(T_dew, P_dew, Tc, Pc)
+    envelope_T       = list(T_bub_s) + list(T_dew_s[::-1])
+    envelope_P       = list(P_bub_s) + list(P_dew_s[::-1])
+    envelope_path    = MplPath(np.column_stack([envelope_T, envelope_P]))
     
-    grid_points     = np.column_stack([T_mesh.ravel(), P_mesh.ravel()])
-    inside          = envelope_path.contains_points(grid_points).reshape(T_mesh.shape)
-    gamma_masked    = np.ma.masked_where(~inside, gamma_mesh)
-    
-    gamma_min       = np.nanmin(gamma_masked)
-    gamma_max       = np.nanmax(gamma_masked)
+    grid_points      = np.column_stack([T_mesh.ravel(), P_mesh.ravel()])
+    inside           = envelope_path.contains_points(grid_points).reshape(T_mesh.shape)
+    gamma_masked     = np.ma.masked_where(~inside, gamma_mesh)
+    gamma_min        = np.nanmin(gamma_masked)
+    gamma_max        = np.nanmax(gamma_masked)
 
     # Isoline levels
-    levels_lines    = [2*n + 1 for n in range(10)]
-    levels_lines    = [lev for lev in levels_lines if gamma_min <= lev <= gamma_max]
+    levels_lines     = [2*n + 1 for n in range(10)]
+    levels_lines     = [lev for lev in levels_lines if gamma_min <= lev <= gamma_max]
 
     # Color bands
-    levels          = np.linspace(gamma_min, gamma_max, 35)
-    contour         = ax.contourf(T_mesh, P_mesh, gamma_masked, levels=levels, 
+    levels           = np.linspace(gamma_min, gamma_max, 35)
+    contour          = ax.contourf(T_mesh, P_mesh, gamma_masked, levels=levels, 
                                  cmap=plt.cm.Blues, extend='both')
     
     # Contour lines
-    # Erode the mask slightly to avoid edge artifacts
-    inside_eroded   = binary_erosion(inside, iterations=2)
-    gamma_masked    = np.ma.masked_where(~inside_eroded, gamma_mesh)
-
-    contour_lines   = ax.contour(T_mesh, P_mesh, gamma_masked, levels=levels_lines,
+    inside_eroded    = binary_erosion(inside, iterations=2)
+    gamma_masked     = np.ma.masked_where(~inside_eroded, gamma_mesh)
+    contour_lines    = ax.contour(T_mesh, P_mesh, gamma_masked, levels=levels_lines,
                             colors='black', linewidths=ps.linewidth/2, alpha=0.6)
 
     ax.clabel(contour_lines, levels=levels_lines, inline=True,
             fontsize=ps.label_fontsize/2, fmt='%.0f',
             inline_spacing= 15, rightside_up=True)
         
-    # ax.clabel(contour_lines, levels=levels_lines, inline=True, 
-    #         fontsize=ps.label_fontsize/2, fmt='%.0f',inline_spacing=5, rightside_up=True)
-    
     # Colorbar legend
     cbar = fig.colorbar(contour, ax=ax, pad=0.02,  format='%.0f')
     cbar.set_ticks(levels_lines)
@@ -862,15 +885,11 @@ def plot_gamma_colormap(PT_results, VLE_DFT, feed_key, parameters):
     cbar.ax.tick_params(labelsize=10) 
     
     # Phase envelope curves
-    ax.plot(T_bubble, P_bubble, 'b-', linewidth=ps.linewidth, label='Bubble curve', zorder=10)
-    ax.plot(T_dew, P_dew, 'r-', linewidth=ps.linewidth, label='Dew curve', zorder=10)
-    ax.plot([T_dew[-1], Tc] , [P_dew[-1], Pc], linestyle="-", linewidth=ps.linewidth, color="red")
-
-    # Critical point
+    ax.plot(T_bub_s, P_bub_s, 'b-', linewidth=ps.linewidth, label='Bubble curve', zorder=10)
+    ax.plot(T_dew_s, P_dew_s, 'r-', linewidth=ps.linewidth, label='Dew curve', zorder=10)
     ax.plot(Tc, Pc, 'o', markersize=4, zorder=15, markerfacecolor="grey", 
         markeredgewidth=1, markeredgecolor="black", label="Critical point")
     
-    # Labels
     ax.set_xlabel(r'$T \; / \; [\mathrm{K}]$', fontsize=ps.label_fontsize)
     ax.set_ylabel(r'$P \; / \; [\mathrm{bar}]$', fontsize=ps.label_fontsize)
     ps.style_legend(ax,fontsize=ps.legend_fontsize, loc='best', framealpha=0)

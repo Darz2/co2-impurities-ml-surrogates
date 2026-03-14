@@ -12,7 +12,7 @@ start_time=$(date +"%T")
 echo "Job started at: $start_time"
 
 source  /home/darshan/A6/py_A6/bin/activate
-export PATH=$HOME/texlive/2025/bin/x86_64-linux:$PATH
+export PATH=$HOME/Software/texlive/2025/bin/x86_64-linux:$PATH
 
 which python
 which latex

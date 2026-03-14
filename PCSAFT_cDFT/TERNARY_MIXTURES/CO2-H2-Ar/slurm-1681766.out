@@ -1,0 +1,7 @@
+Job started at: 13:30:17
+/home/darshan/A6/py_A6/bin/python
+/home/darshan/Software/texlive/2025/bin/x86_64-linux/latex
+Input Notebook:  VLE_IFT.ipynb
+Output Notebook: VLE_IFT_output.ipynb
+Executing:   0%|          | 0/6 [00:00<?, ?cell/s]Executing notebook with kernel: python3
+Executing:  17%|█▋        | 1/6 [00:11<00:56, 11.28s/cell]Executing:  33%|███▎      | 2/6 [00:12<00:20,  5.08s/cell]Executing:  67%|██████▋   | 4/6 [00:16<00:06,  3.35s/cell]Executing:  83%|████████▎ | 5/6 [17:58<05:30, 330.71s/cell]Executing: 100%|██████████| 6/6 [17:59<00:00, 229.57s/cell]Executing: 100%|██████████| 6/6 [18:01<00:00, 180.28s/cell]
