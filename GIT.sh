@@ -2,6 +2,6 @@
 
 # git init
 git add *
-git commit -m "Interpolation addition to the feosPlugin"
+git commit -m "thermoift:restructure"
 # git remote add origin https://github.com/Darz2/A6.git
 git push -u origin master

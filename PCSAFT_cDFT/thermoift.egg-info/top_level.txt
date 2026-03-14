@@ -1,9 +1,0 @@
-BINARY_MIXTURES
-Experimental_data
-KIJ_A5
-QUATERNARY_MIXTURES
-TERNARY_MIXTURES
-TEST_BM
-TEST_TM
-parachorpy
-thermoift
