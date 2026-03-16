@@ -17,4 +17,11 @@ export PATH=$HOME/Software/texlive/2025/bin/x86_64-linux:$PATH
 which python
 which latex
 
-papermill VLE_IFT.ipynb VLE_IFT_output.ipynb
+papermill VLE_IFT_V2.ipynb VLE_IFT_V2_output.ipynb \
+-p CO2_comp 0.99 \
+-p n_feeds 4 \
+-p TEST_RUN False \
+-p verbose False \
+-p CSV_FOLDER "CSV_${SLURM_JOB_ID}"
+
+# papermill VLE_IFT_V2.ipynb VLE_IFT_V2_output.ipynb
