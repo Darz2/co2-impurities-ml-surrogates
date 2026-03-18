@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=cDFT_V3_KIJ_0
+#SBATCH --job-name=cDFT_V3_KIJ_neq0
 #SBATCH --partition=serial
 #SBATCH --time=7-00:00:00
 #SBATCH --exclude=c171
