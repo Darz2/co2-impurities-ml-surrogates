@@ -41,21 +41,21 @@ Two computation notebooks are provided for different use cases:
 
 | Feature | Description |
 |---------|-------------|
-| **Input method** | Parameters defined in notebook cells (papermill-injectable) |
+| **Input method** | Parameters defined in notebook cells (papermill-injectable as JSON) |
 | **Components** | Manually specified list (e.g., `["carbon dioxide", "hydrogen", "argon"]`) |
 | **Compositions** | Auto-generated via `CompositionHandler.generate_feeds(CO2=0.99, n_points=4)` |
 | **KIJ handling** | Explicit `KIJ_map` dictionary with per-pair model selection |
+| **Job control** | `SLURM_RUN` flag toggles test/production grid settings |
 | **Typical use** | SLURM batch jobs via `RUN.sh` with papermill parameter injection |
 
 ```python
 # V2 configuration example
-COMPONENTS = ["carbon dioxide", "hydrogen", "argon"]
-KIJ_map = {
-    ("CO2", "Ar"): "constant",   # Uses fitted kij value
-    ("H2", "Ar"): "zero",        # kij = 0
-    ("CO2", "H2"): "zero"
-}
-feeds = CompositionHandler.generate_feeds(CO2=0.99, n_points=4)
+COMPONENTS  = ["carbon dioxide", "hydrogen", "argon"]
+KIJ_map     = {"CO2,Ar": "constant", "H2,Ar": "zero", "CO2,H2": "zero"}
+CO2_comp    = 0.99
+n_feeds     = 4
+
+feeds = CompositionHandler.generate_feeds(CO2=CO2_comp, n_points=n_feeds)
 ```
 
 ### VLE_IFT_V3.ipynb — CSV-Driven (Large-Scale Batch)
@@ -67,20 +67,39 @@ feeds = CompositionHandler.generate_feeds(CO2=0.99, n_points=4)
 | **Input method** | Loads compositions from CSV files in `CSV_feeds/` |
 | **Components** | Full 8-component system auto-mapped via `RegistryManager.map_csv_to_components()` |
 | **Compositions** | Loaded via `CompositionHandler.load_compositions(csv_path, n=100)` |
-| **KIJ handling** | Auto-generates `KIJ_map` for all 28 binary pairs (defaults to `"zero"`) |
-| **Typical use** | Processing thousands of compositions from `Feed.ipynb` output |
+| **KIJ handling** | Loaded from `CSV_feeds/KIJ_pairs.json` with per-pair model overrides |
+| **Job control** | `FEED_INDEX` parameter for SLURM array jobs (processes single composition per job) |
+| **Typical use** | Processing thousands of compositions via SLURM array jobs |
 
 ```python
 # V3 configuration example
-csv_path = "CSV_feeds/Combined_compositions.csv"
-COMPONENTS = RegistryManager.map_csv_to_components()  # All 8 components
-compositions = CompositionHandler.load_compositions(csv_path, n=100)
+csv_path         = "CSV_feeds/Combined_compositions.csv"
+COMPONENTS       = RegistryManager.map_csv_to_components()  # All 8 components
+all_compositions = CompositionHandler.load_compositions(csv_path, n=100)
 
-# Auto-build KIJ_map for all pairs (can override specific pairs)
+# SLURM array job: process single composition at FEED_INDEX
+if FEED_INDEX is not None:
+    compositions = [all_compositions[FEED_INDEX]]
+
+# KIJ_map loaded from JSON file with pair-specific model overrides
+with open("CSV_feeds/KIJ_pairs.json") as f:
+    kij_overrides = json.load(f)
 KIJ_LABELS = RegistryManager.kij_labels_from_names(COMPONENTS)
-KIJ_map = {pair: "zero" for pair in combinations(KIJ_LABELS, 2)}
-# KIJ_map[("CO2", "Ar")] = "constant"  # Optional override
+KIJ_map = {pair: kij_overrides.get(f"{pair[0]}-{pair[1]}", "zero")
+           for pair in combinations(KIJ_LABELS, 2)}
+
+feeds = CompositionHandler.make_feeds(*compositions)
 ```
+
+### Key Differences Summary
+
+| Aspect | V2 | V3 |
+|--------|-----|-----|
+| **Composition source** | Auto-generated (simplex) | Pre-generated CSV |
+| **Component scope** | Subset (2-4 components) | Full 8-component system |
+| **KIJ source** | Inline dictionary | External JSON file |
+| **Parallelization** | Single job, multiple feeds | SLURM array (1 feed/job) |
+| **Scalability** | ~10s of feeds | ~1000s of feeds |
 
 ## Workflow
 
