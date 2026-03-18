@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 #SBATCH --job-name=cDFT_TERNARY-(CO2-H2-Ar)
 #SBATCH --partition=serial
@@ -17,30 +18,15 @@ export PATH=$HOME/Software/texlive/2025/bin/x86_64-linux:$PATH
 which python
 which latex
 
-# VLE_IFT_V3.ipynb
-
-# papermill VLE_IFT_V3.ipynb VLE_IFT_V3_output.ipynb \
-# -p TEST_RUN False \
-# -p verbose False \
-# -p CSV_FOLDER "CSV_${SLURM_JOB_ID}"
+mkdir -p ${SLURM_JOB_ID}
 
 # VLE_IFT_V2.ipynb
-papermill VLE_IFT_V2.ipynb VLE_IFT_V2_output.ipynb \
+papermill VLE_IFT_V2.ipynb ${SLURM_JOB_ID}/VLE_IFT_V2_${SLURM_JOB_ID}.ipynb \
+-p COMPONENTS '["carbon dioxide","hydrogen","argon"]' \
+-p KIJ_map '{"CO2,Ar":"zero","H2,Ar":"zero","CO2,H2":"zero"}' \
 -p CO2_comp 0.99 \
--p n_feeds 4 \
--p TEST_RUN True \
+-p n_feeds 2 \
 -p verbose False \
 -p CSV_FOLDER "CSV_${SLURM_JOB_ID}" \
--y "
-COMPONENTS:
-  - carbon dioxide
-  - hydrogen
-  - argon
-KIJ_map:
-  ? [CO2, Ar]
-  : constant
-  ? [H2, Ar]
-  : zero
-  ? [CO2, H2]
-  : zero
-"
+-p PLOT_FOLDER "PLOTS_${SLURM_JOB_ID}" \
+-p SLURM_RUN True \
