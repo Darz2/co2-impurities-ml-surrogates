@@ -3,6 +3,6 @@ slurm*
 __pycache__/
 *.pyc
 
-# SLURM job output directories (JOBID_TASKID pattern)
-PCSAFT_cDFT/*/DATA/
-[0-9]*_[0-9]*/
+# # SLURM job output directories (JOBID_TASKID pattern)
+# PCSAFT_cDFT/*/DATA/
+# [0-9]*_[0-9]*/
