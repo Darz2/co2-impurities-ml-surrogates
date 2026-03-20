@@ -19,7 +19,6 @@ export PATH="$HOME/Software/texlive/2025/bin/x86_64-linux:$PATH"
 
 echo "Python: $(which python)"
 echo "LaTeX : $(which latex || echo 'latex not found')"
-echo "Papermill: $(which papermill)"
 
 OUTPUT_DIR="outputs_TabPFN_Gamma"
 mkdir -p "${OUTPUT_DIR}"

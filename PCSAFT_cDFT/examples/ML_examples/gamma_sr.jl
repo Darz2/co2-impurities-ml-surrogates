@@ -167,4 +167,3 @@ plot!(
 )
 
 savefig(p_gamma, "outputs/parity_plot_gamma.png")
-println("Saved: outputs/parity_plot_gamma.png")
