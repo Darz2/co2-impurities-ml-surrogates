@@ -170,46 +170,20 @@ function substitute_features(eq_str::AbstractString; feature_map=Dict("F1" => "(
 end
 
 function math_to_latex(s::AbstractString)
-    latex = String(strip(s))
+    latex = strip(String(s))
 
     latex = replace(latex, "T/Tc" => "\\frac{T}{T_c}")
     latex = replace(latex, "Tr"   => "T_r")
     latex = replace(latex, "F1"   => "F_1")
 
-    # Convert powers like (base)^(exp) -> \left(base\right)^{exp}
-    max_iter = 200
-    for _ in 1:max_iter
-        pos = findfirst(")^(", latex)
-        pos === nothing && break
-
-        mid_start = first(pos)      # position of ')'
-        mid_end   = last(pos)       # position of '(' in ^(
-
-        # Find matching opening paren for the base
-        base_end = mid_start
-        depth = 1
-        i = base_end - 1
-        while i >= firstindex(latex) && depth > 0
-            if latex[i] == ')'
-                depth += 1
-            elseif latex[i] == '('
-                depth -= 1
-            end
-            i -= 1
-        end
-        base_start = i + 1
-
-        # Find matching closing paren for exponent
-        exp_start = mid_end
-        exp_end = find_matching_paren(latex, exp_start)
-
-        exp_end == -1 && break
-
-        base = latex[base_start+1:base_end-1]
-        expo = latex[exp_start+1:exp_end-1]
-
-        replacement = "\\left($base\\right)^{$expo}"
-        latex = latex[1:base_start-1] * replacement * latex[exp_end+1:end]
+    for _ in 1:200
+        m = match(r"\(([^()]*)\)\^\(([^()]*)\)", latex)
+        m === nothing && break
+        full = m.match
+        base = strip(m.captures[1])
+        expo = strip(m.captures[2])
+        repl = "\\left($base\\right)^{$expo}"
+        latex = replace(latex, full => repl, count=1)
     end
 
     latex = replace(latex, "*" => " ")

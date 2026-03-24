@@ -91,3 +91,9 @@ python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
 ignore_missing_imports = true
+
+[tool.uv.workspace]
+members = [
+    "PCSAFT_cDFT/symbolic_regression/outputs/manimations",
+    "manimations",
+]
