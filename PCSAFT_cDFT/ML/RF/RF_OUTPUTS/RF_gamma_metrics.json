@@ -1,0 +1,37 @@
+{
+  "train_r2": 0.999938460576525,
+  "test_r2": 0.999532969918824,
+  "train_rmse": 0.04207603745509037,
+  "test_rmse": 0.1163345148659099,
+  "train_mae": 0.024420659975291355,
+  "test_mae": 0.06689667822964815,
+  "val_r2": 0.9995588132720672,
+  "val_rmse": 0.11200922976501909,
+  "val_mae": 0.06365101188576221,
+  "cv_r2_scores": [
+    0.9987286258709821,
+    0.9994307817072038,
+    0.9985937013496057,
+    0.9992012822855846,
+    0.9987826471277845
+  ],
+  "cv_r2_mean": 0.9989474076682321,
+  "cv_r2_std": 0.00031566515589163166,
+  "model": "RandomForest",
+  "n_estimators": 500,
+  "max_depth": null,
+  "features": [
+    "temperature",
+    "pressure",
+    "z_carbon dioxide",
+    "z_hydrogen",
+    "z_nitrogen",
+    "z_argon",
+    "z_methane",
+    "z_oxygen",
+    "z_carbon monoxide",
+    "z_hydrogen sulfide"
+  ],
+  "target": "gamma",
+  "seed": 455552
+}

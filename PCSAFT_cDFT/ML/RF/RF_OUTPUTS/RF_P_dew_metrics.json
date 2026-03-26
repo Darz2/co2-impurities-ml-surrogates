@@ -1,0 +1,37 @@
+{
+  "train_r2": 0.999996802711611,
+  "test_r2": 0.9999875210673057,
+  "train_rmse": 0.03138224229435181,
+  "test_rmse": 0.062404820790158626,
+  "train_mae": 0.003238583836242894,
+  "test_mae": 0.008565967653026054,
+  "val_r2": 0.9999922323408573,
+  "val_rmse": 0.048490112545833394,
+  "val_mae": 0.006944014935179688,
+  "cv_r2_scores": [
+    0.999069856666691,
+    0.9999092863127699,
+    0.9998873467738761,
+    0.9998729324102167,
+    0.9997774230138583
+  ],
+  "cv_r2_mean": 0.9997033690354824,
+  "cv_r2_std": 0.0003199448028914404,
+  "model": "RandomForest",
+  "n_estimators": 500,
+  "max_depth": null,
+  "features": [
+    "temperature",
+    "pressure",
+    "z_carbon dioxide",
+    "z_hydrogen",
+    "z_nitrogen",
+    "z_argon",
+    "z_methane",
+    "z_oxygen",
+    "z_carbon monoxide",
+    "z_hydrogen sulfide"
+  ],
+  "target": "P_dew",
+  "seed": 8005515
+}
