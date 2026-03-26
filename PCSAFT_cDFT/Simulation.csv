@@ -1,3 +1,4 @@
-Datasets,Size and treatment
-Datasets_A1,100 / KIJ = 0
-Datasets_A2,100 / KIJ neq 0
+Datasets,Size and treatment,Models,Notebook
+Datasets_A1,100 / KIJ = 0,"Random Forest, TabPFN",VLE_IFT_V3.ipynb
+Datasets_A2,100 / KIJ neq 0,"Random Forest, TabPFN",VLE_IFT_V3.ipynb
+Datasets_A3,"100 / KIJ = 0 ",For Symbolic Regression,VLE_cDFT_SEC.ipynb

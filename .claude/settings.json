@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(jupyter nbconvert:*)",
+      "Bash(python3 -c \":*)",
+      "Read(//tmp/**)"
+    ]
+  }
+}
