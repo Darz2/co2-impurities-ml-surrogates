@@ -36,7 +36,7 @@ echo "Papermill: $(which papermill)"
 OUTPUT_DIR="${JOB_ID}_${TASK_ID}"
 CSV_DIR="${OUTPUT_DIR}/OUTPUT"
 
-mkdir -p "${CSV_DIR}" "${PLOT_DIR}"
+mkdir -p "${CSV_DIR}"
 
 papermill VLE_cDFT_SEC.ipynb "${OUTPUT_DIR}/VLE_cDFT_SEC_${TASK_ID}.ipynb" \
     -p SLURM_RUN True \
