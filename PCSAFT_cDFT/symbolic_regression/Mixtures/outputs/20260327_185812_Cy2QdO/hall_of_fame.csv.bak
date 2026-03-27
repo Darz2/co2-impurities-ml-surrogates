@@ -1,0 +1,8 @@
+Complexity,Loss,Equation
+1,0.013150789174746573,"q_total_impurity"
+2,0.0035956162781940254,"-0.12003806967094464"
+4,0.0001983982503528673,"x_total_impurity * -3.9271938408263685"
+6,0.00019070677714371186,"(delta_rho_total_impurity - x_total_impurity) * 3.8749790547367966"
+8,0.00014283281632503265,"((y_total_impurity - 3.8939354899528116) * x_total_impurity) + q_total_impurity"
+10,0.0001248726083726635,"(q_total_impurity * y_total_impurity) + (x_total_impurity * (-4.02955371898147 - delta_z_total_impurity))"
+12,0.00010693080393587433,"((-4.1225765631822 - delta_z_total_impurity) * x_total_impurity) + ((y_total_impurity * q_total_impurity) * y_total_impurity)"
