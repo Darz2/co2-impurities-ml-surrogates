@@ -3,7 +3,8 @@
     "allow": [
       "Bash(jupyter nbconvert:*)",
       "Bash(python3 -c \":*)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(python3:*)"
     ]
   }
 }
