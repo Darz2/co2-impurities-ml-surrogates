@@ -1,0 +1,35 @@
+[
+    {
+        "label": "cDFT $-$ Parachor",
+        "max_deviation_mNm": 0.21031359606940647,
+        "max_deviation_T_K": 228.65969849246233,
+        "max_deviation_P_bar": 54.533095229025506,
+        "min_deviation_mNm": -0.3651652908177603,
+        "min_deviation_T_K": 200.5210854271357,
+        "min_deviation_P_bar": 18.09952234906651,
+        "mean_deviation_mNm": 0.01944483916787771,
+        "rmse_mNm": 0.1153085080803864
+    },
+    {
+        "label": "cDFT $-$ WSD (corrected)",
+        "max_deviation_mNm": -0.01311681653250929,
+        "max_deviation_T_K": 203.12651256281407,
+        "max_deviation_P_bar": 2.9929189598152184,
+        "min_deviation_mNm": -2.3476180000961513,
+        "min_deviation_T_K": 200.5210854271357,
+        "min_deviation_P_bar": 59.42052573731269,
+        "mean_deviation_mNm": -0.572607503536925,
+        "rmse_mNm": 0.7457781708022396
+    },
+    {
+        "label": "cDFT $-$ WSD (no correction)",
+        "max_deviation_mNm": -0.021570287245488373,
+        "max_deviation_T_K": 203.12651256281407,
+        "max_deviation_P_bar": 2.9929189598152184,
+        "min_deviation_mNm": -3.244366961877244,
+        "min_deviation_T_K": 200.5210854271357,
+        "min_deviation_P_bar": 59.42052573731269,
+        "mean_deviation_mNm": -0.8914229540602875,
+        "rmse_mNm": 1.1290530650709782
+    }
+]
