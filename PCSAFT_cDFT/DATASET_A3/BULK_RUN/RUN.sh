@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=cDFT_SEC_IFT
+#SBATCH --job-name=cDFT_SEC_KIJeq0
 #SBATCH --partition=serial
 #SBATCH --time=7-00:00:00
 #SBATCH --exclude=c171
@@ -10,8 +10,7 @@
 
 set -euo pipefail
 
-start_time=$(date +"%T")
-echo "Job started at: $start_time"
+echo "Job started at: $(date '+%F %T')"
 
 if [ -z "${SLURM_ARRAY_TASK_ID:-}" ]; then
     echo "Error: This script must be submitted as a Slurm array job."
@@ -20,28 +19,40 @@ if [ -z "${SLURM_ARRAY_TASK_ID:-}" ]; then
 fi
 
 TASK_ID="${SLURM_ARRAY_TASK_ID}"
-JOB_ID="${SLURM_ARRAY_JOB_ID}"
+ARRAY_JOB_ID="${SLURM_ARRAY_JOB_ID}"
+TASK_JOB_ID="${SLURM_JOB_ID}"
 
-echo "TASK_ID: ${TASK_ID}"
+echo "Array job ID : ${ARRAY_JOB_ID}"
+echo "Task job ID  : ${TASK_JOB_ID}"
+echo "Task ID      : ${TASK_ID}"
 
 cd "${SLURM_SUBMIT_DIR:-$PWD}"
+
+if [ ! -f "VLE_cDFT_SEC.ipynb" ]; then
+    echo "Error: VLE_cDFT_SEC.ipynb not found in $(pwd)"
+    exit 1
+fi
 
 source /home/darshan/A6/py_A6/bin/activate
 export PATH="$HOME/Software/texlive/2025/bin/x86_64-linux:$PATH"
 
-echo "Python: $(which python)"
-echo "LaTeX : $(which latex || echo 'latex not found')"
-echo "Papermill: $(which papermill)"
+command -v python >/dev/null 2>&1 || { echo "Error: python not found"; exit 1; }
+command -v papermill >/dev/null 2>&1 || { echo "Error: papermill not found"; exit 1; }
 
-OUTPUT_DIR="${JOB_ID}_${TASK_ID}"
-CSV_DIR="${OUTPUT_DIR}/OUTPUT"
+echo "Python    : $(which python)"
+echo "LaTeX     : $(which latex || echo 'latex not found')"
+echo "Papermill : $(which papermill)"
 
-mkdir -p "${CSV_DIR}"
+OUTPUT_DIR="${ARRAY_JOB_ID}/${ARRAY_JOB_ID}_${TASK_ID}"
+OUT_DIR="${OUTPUT_DIR}/OUTPUT"
 
-papermill VLE_cDFT_SEC.ipynb "${OUTPUT_DIR}/VLE_cDFT_SEC_${TASK_ID}.ipynb" \
-    -p SLURM_RUN True \
+mkdir -p "${OUT_DIR}"
+
+papermill "VLE_cDFT_SEC.ipynb" "${OUTPUT_DIR}/VLE_cDFT_SEC_${TASK_ID}.ipynb" \
     -p FEED_INDEX "${TASK_ID}" \
     -p verbose False \
-    -p CSV_FOLDER "${CSV_DIR}"
+    -p OUTPUT_FOLDER "${OUT_DIR}" \
+    -p N_T 30 \
+    -p N_P 30
 
-echo "Job finished at: $(date +"%T")"
+echo "Job finished at: $(date '+%F %T')"

@@ -4,6 +4,7 @@ __pycache__/
 *.pyc
 .claude
 .gitignore
-# # SLURM job output directories (JOBID_TASKID pattern)
-# PCSAFT_cDFT/*/DATA/
-# [0-9]*_[0-9]*/
+Gamma_cDFT.pdf
+# SLURM job output directories (JOBID_TASKID pattern)
+PCSAFT_cDFT/DATASET*/
+[0-9]*_[0-9]*/
