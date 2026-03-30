@@ -20,8 +20,8 @@ include("sr_utils.jl")
 # Data loading and feature engineering
 # ============================================================
 
-df      = CSV.read("CSV/interfacial_results/PT_wsd.csv", DataFrame; normalizenames=true)
-df_cDFT = CSV.read("CSV/interfacial_results/feed_1_interfacial_results.csv", DataFrame; normalizenames=true)
+df      = CSV.read("CSV/interfacial_results/SEC_WSD.csv", DataFrame; normalizenames=true)
+df_cDFT = CSV.read("CSV/interfacial_results/feed_1_interfacial.csv", DataFrame; normalizenames=true)
 # df = first(df, 5)
 
 # Mixture CO2 density gap
@@ -111,8 +111,6 @@ features = [
     :q_argon,
     :x_hydrogen,
     :x_argon,
-    :s_hydrogen,
-    :s_argon,
 ]
 
 println("\\nTarget used: ", target)
