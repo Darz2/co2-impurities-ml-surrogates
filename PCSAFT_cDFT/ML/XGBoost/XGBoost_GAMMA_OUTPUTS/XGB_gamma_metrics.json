@@ -1,0 +1,49 @@
+{
+  "train_r2": 0.9999019395520067,
+  "test_r2": 0.9998016819288695,
+  "train_rmse": 0.0531135167542272,
+  "test_rmse": 0.07580839481967928,
+  "train_mae": 0.03866174648177955,
+  "test_mae": 0.05339034694796163,
+  "val_r2": 0.9998063214159579,
+  "val_rmse": 0.07421358167181374,
+  "val_mae": 0.051146252505876816,
+  "cv_r2_scores": [
+    0.9994362812894254,
+    0.9991297635411923,
+    0.9992043124151974,
+    0.9993462844145338,
+    0.9978883153596486
+  ],
+  "cv_r2_mean": 0.9990009914039994,
+  "cv_r2_std": 0.000566511116230208,
+  "cv_rmse_scores": [
+    0.13375388568091567,
+    0.1634342356760742,
+    0.1439252338113891,
+    0.14502494078304237,
+    0.20283694123891705
+  ],
+  "cv_rmse_mean": 0.1577950474380677,
+  "cv_rmse_std": 0.024470379865477086,
+  "model": "XGBoost",
+  "n_estimators": 500,
+  "max_depth": 6,
+  "learning_rate": 0.05,
+  "subsample": 0.8,
+  "colsample_bytree": 0.8,
+  "features": [
+    "temperature",
+    "pressure",
+    "z_carbon dioxide",
+    "z_hydrogen",
+    "z_nitrogen",
+    "z_argon",
+    "z_methane",
+    "z_oxygen",
+    "z_carbon monoxide",
+    "z_hydrogen sulfide"
+  ],
+  "target": "gamma",
+  "seed": 455552
+}
