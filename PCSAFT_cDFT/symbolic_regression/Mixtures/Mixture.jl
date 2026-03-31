@@ -10,6 +10,7 @@ using Statistics
 using Plots
 using Serialization
 using SymbolicRegression
+using Parquet2
 
 cd(@__DIR__)
 mkpath("outputs")
