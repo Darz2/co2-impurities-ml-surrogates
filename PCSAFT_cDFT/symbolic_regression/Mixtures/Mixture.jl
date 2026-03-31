@@ -20,8 +20,8 @@ include("sr_utils.jl")
 # Data loading and feature engineering
 # ============================================================
 
-df      = CSV.read("CSV/interfacial_results/PT_wsd.csv", DataFrame; normalizenames=true)
-df_cDFT = CSV.read("CSV/interfacial_results/feed_1_interfacial_results.csv", DataFrame; normalizenames=true)
+df      = CSV.read("CSV/interfacial_results/SEC_WSD.csv", DataFrame; normalizenames=true)
+df_cDFT = CSV.read("CSV/interfacial_results/feed_1_interfacial.csv", DataFrame; normalizenames=true)
 # df = first(df, 5)
 
 # Mixture CO2 density gap
@@ -29,7 +29,7 @@ df[!, :NUM1]        = df[!, :rhoL1_carbon_dioxide] .- df[!, :rhoV1_carbon_dioxid
 
 # Pure CO2 density gap
 df[!, :DEN1]        = df[!, :rhoL0_carbon_dioxide] .- df[!, :rhoV0_carbon_dioxide]
-df[!, :C]           = 1 .- (df[!, :x_hydrogen] .+ df[!, :x_argon])                        # Correction
+# df[!, :C]           = 1 .- (df[!, :x_hydrogen] .+ df[!, :x_argon])                        # Correction
 
 # Reference density-gap ratio
 df[!, :r1]          = df[!, :NUM1] ./ df[!, :DEN1]
@@ -39,18 +39,9 @@ df[!, :r1sq]        = df[!, :r1] .^ 2
 # gamma_base = gamma0_CO2 * r1^2
 df[!, :gamma_base] = df[!, :gamma0_carbon_dioxide] .* df[!, :r1sq]
 
-# Optional supercritical correction used in your previous workflow
-df[!, :C] = 1 .- (df[!, :x_hydrogen] .+ df[!, :x_argon])
-df[!, :gamma_base_corr] = df[!, :gamma_base] .* df[!, :C]
-
-println(all(isapprox.(df.gamma_wsd, df.gamma_base_corr; atol=1e-12, rtol=1e-10)) ?
-    "gamma_wsd matches gamma_base_corr within the chosen tolerances." :
-    "gamma_wsd does not match gamma_base_corr within the chosen tolerances.")
-
 # cDFT Gamma values
 # gamma_cDFT_minus_wsd_uncorrected = gamma_cDFT - gamma_wsd/gamma_base_corr
 df[!, :gamma_cDFT] = df[!, :gamma_wsd] .+ df[!, :gamma_cDFT_minus_wsd_uncorrected]
-
 
 # ============================================================
 # Symbolic Regression targets
@@ -59,43 +50,9 @@ df[!, :gamma_cDFT] = df[!, :gamma_wsd] .+ df[!, :gamma_cDFT_minus_wsd_uncorrecte
 # Target : Relative residual vs baseline
 df[!, :eps_base] = (df[!, :gamma_cDFT] .- df[!, :gamma_base]) ./ df[!, :gamma_base]
 
-# Optional target: absolute residual vs baseline
-df[!, :delta_gamma_base] = df[!, :gamma_cDFT] .- df[!, :gamma_base]
-
-
 # ============================================================
 # Dimensionless candidate features 
 # ============================================================
-
-# Phase-partitioning differences
-df[!, :delta_z_hydrogen] = df[!, :x_hydrogen] .- df[!, :y_hydrogen]
-df[!, :delta_z_argon]    = df[!, :x_argon]    .- df[!, :y_argon]
-
-# Component density gaps
-df[!, :delta_rho_hydrogen] = df[!, :rhoL2_hydrogen] .- df[!, :rhoV2_hydrogen]
-df[!, :delta_rho_argon]    = df[!, :rhoL3_argon]    .- df[!, :rhoV3_argon]
-
-# Ratios relative to CO2 mixture density gap
-df[!, :q_hydrogen] = df[!, :delta_rho_hydrogen] ./ df[!, :NUM1]
-df[!, :q_argon]    = df[!, :delta_rho_argon]    ./ df[!, :NUM1]
-
-# Ratios relative to pure CO2 reference density gap
-df[!, :rtilde_hydrogen] = df[!, :delta_rho_hydrogen] ./ df[!, :DEN1]
-df[!, :rtilde_argon]    = df[!, :delta_rho_argon]    ./ df[!, :DEN1]
-
-# Bounded gap-share variables
-df[!, :gap_total] = df[!, :NUM1] .+ df[!, :delta_rho_hydrogen] .+ df[!, :delta_rho_argon]
-df[!, :s_hydrogen] = df[!, :delta_rho_hydrogen] ./ df[!, :gap_total]
-df[!, :s_argon]    = df[!, :delta_rho_argon]    ./ df[!, :gap_total]
-
-# Optional partition coefficients
-eps = 1e-12
-df[!, :logK_hydrogen] = log.((df[!, :y_hydrogen] .+ eps) ./ (df[!, :x_hydrogen] .+ eps))
-df[!, :logK_argon]    = log.((df[!, :y_argon]    .+ eps) ./ (df[!, :x_argon]    .+ eps))
-
-# Optional interaction terms
-df[!, :qH_qAr] = df[!, :q_hydrogen] .* df[!, :q_argon]
-df[!, :dzH_dzAr] = df[!, :delta_z_hydrogen] .* df[!, :delta_z_argon]
 
 # Total impurity liquid fraction
 df[!, :x_total_impurity] = df[!, :x_hydrogen] .+ df[!, :x_argon]
@@ -104,15 +61,11 @@ df[!, :x_total_impurity] = df[!, :x_hydrogen] .+ df[!, :x_argon]
 df[!, :y_total_impurity] = df[!, :y_hydrogen] .+ df[!, :y_argon]
 
 # Total impurity phase-partitioning difference
-df[!, :delta_z_total_impurity] = df[!, :x_total_impurity] .- df[!, :y_total_impurity]
+df[!, :delta_total_impurity] = df[!, :x_total_impurity] .- df[!, :y_total_impurity]
 
 # Impurity partition coefficient
+eps = 1e-12
 df[!, :logK_total_impurity] = log.((df[!, :y_total_impurity] .+ eps) ./ (df[!, :x_total_impurity] .+ eps))
-
-# Total impurity density gap
-df[!, :q_total_impurity] =
-    df[!, :delta_rho_total_impurity] ./
-    (df[!, :rhoL1_carbon_dioxide] .- df[!, :rhoV1_carbon_dioxide])
 
 # ============================================================
 # Target and features for Symbolic Regression
@@ -124,12 +77,21 @@ target = :eps_base
 features = [
     :x_total_impurity,
     :y_total_impurity,
-    :delta_z_total_impurity,
-    :q_total_impurity,
+    :delta_total_impurity,
+    :logK_total_impurity,
 ]
 
-println("\\nTarget used: ", target)
+println("\nTarget used: ", target)
 println("Features used: ", features)
+
+n_before = nrow(df)
+dropmissing!(df, vcat(features, [target]))
+all_cols = vcat(features, [target])
+filter!(row -> all(isfinite(row[c]) for c in all_cols), df)
+n_after = nrow(df)
+if n_before > n_after
+    println("Dropped $(n_before - n_after) rows with missing/Inf/NaN values ($(n_after) remaining)")
+end
 
 X = Matrix{Float64}(df[:, features])
 y = Vector{Float64}(df[:, target])
@@ -192,7 +154,7 @@ println("\n══ Fitting residual correction eps_base ══")
 hall_of_fame_eps_base = equation_search(
     X_train', y_train;
     options        = options,
-    niterations    = 500,
+    niterations    = 200,
     variable_names = string.(features),
     parallelism    = :multithreading,
 )
@@ -210,14 +172,15 @@ println(hall_of_fame_eps_base)
 # ============================================================
 
 dominating_eps_base = calculate_pareto_frontier(hall_of_fame_eps_base)
-# best_idx, best_rmse_val = select_best_equation(dominating_eps_base, X_val, y_val, options)
+select_best_equation(dominating_eps_base, X_val, y_val, options)   # prints all equations with val RMSE
 
-best_idx = 4
+print("\nEnter the equation index to use: ")
+best_idx = parse(Int, readline())
+
 best_eq_eps_base = dominating_eps_base[best_idx]
 best_eq_str = string_tree(best_eq_eps_base.tree, options)
 
-println("\nChosen equation index (best validation RMSE) = ", best_idx)
-# println("Best validation RMSE = ", best_rmse_val)
+println("\nChosen equation index = ", best_idx)
 println("Chosen equation:")
 println(best_eq_eps_base)
 

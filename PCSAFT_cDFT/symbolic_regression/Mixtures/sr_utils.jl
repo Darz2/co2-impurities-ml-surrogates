@@ -33,7 +33,10 @@ safepow(x::T, a::T) where {T<:Real} = x > zero(T) ? x^a : T(NaN32)
 
 function get_render_options()
     return Options(
-        binary_operators = (+, *, safepow),
+        binary_operators        = (+, -, *, safepow),
+        unary_operators         = (abs,),
+        complexity_of_operators = [safepow => 3, abs => 2],
+        complexity_of_constants = 2,
     )
 end
 
