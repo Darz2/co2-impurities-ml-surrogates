@@ -5,6 +5,19 @@ __pycache__/
 .claude
 .gitignore
 Gamma_cDFT.pdf
+*.joblib
 # SLURM job output directories (JOBID_TASKID pattern)
 PCSAFT_cDFT/DATASET*/
 [0-9]*_[0-9]*/
+
+PCSAFT_cDFT/ML/RF/RF_GAMMA_OUTPUTS/
+PCSAFT_cDFT/ML/RF/RF_Pbubble_OUTPUTS/
+PCSAFT_cDFT/ML/RF/RF_Pdew_OUTPUTS/
+
+PCSAFT_cDFT/ML/SVM/SLURM_Pbubble/
+PCSAFT_cDFT/ML/SVM/SLURM_Pdew/
+PCSAFT_cDFT/ML/SVM/SLURM_gamma/
+
+PCSAFT_cDFT/ML/XGBoost/SLURM_Pbubble/
+PCSAFT_cDFT/ML/XGBoost/SLURM_Pdew/
+PCSAFT_cDFT/ML/XGBoost/SLURM_gamma/
