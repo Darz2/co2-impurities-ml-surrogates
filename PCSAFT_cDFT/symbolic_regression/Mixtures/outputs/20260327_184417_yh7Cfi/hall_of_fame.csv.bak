@@ -1,7 +1,0 @@
-Complexity,Loss,Equation
-1,0.0035956162781940254,"-0.12003806967103746"
-3,0.00019839825035286728,"x_total_impurity * -3.927193840881948"
-5,0.00018777605794011574,"safepow(x_total_impurity, 1.0889535368266987) * -5.235159237835775"
-7,0.00010265422540085198,"(x_total_impurity * -3.8077239166424652) - safepow(logK_total_impurity, -9.198287708431208)"
-9,3.017641791162297e-5,"(safepow(y_total_impurity, safepow(logK_total_impurity, x_total_impurity)) + delta_z_total_impurity) * -5.0123329983821545"
-11,1.1377599618734867e-5,"(safepow(y_total_impurity, safepow(logK_total_impurity + -0.3640124723293234, x_total_impurity)) + delta_z_total_impurity) * -4.7345379968020875"

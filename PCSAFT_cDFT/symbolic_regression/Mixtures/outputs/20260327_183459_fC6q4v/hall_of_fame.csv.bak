@@ -1,7 +1,0 @@
-Complexity,Loss,Equation
-1,0.0035956162781940254,"-0.12003806967105192"
-3,0.0001983982503528673,"x_total_impurity * -3.9271938401986946"
-5,0.00017807195981134533,"x_total_impurity * (-4.066288978748073 - delta_z_argon)"
-7,0.00015005443918650872,"q_hydrogen + ((y_total_impurity + -3.697893318351663) * x_total_impurity)"
-9,0.00012019521324207017,"(-4.338630481529708 - (y_total_impurity + (delta_z_argon * 6.942949454644418))) * x_total_impurity"
-11,5.291964156208961e-5,"x_total_impurity * ((delta_z_hydrogen * (-6.849375256875737 - (delta_z_hydrogen * 8.821670001042841))) + -4.830963850821078)"
