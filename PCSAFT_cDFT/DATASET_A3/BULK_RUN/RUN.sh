@@ -52,7 +52,7 @@ papermill "VLE_cDFT_SEC.ipynb" "${OUTPUT_DIR}/VLE_cDFT_SEC_${TASK_ID}.ipynb" \
     -p FEED_INDEX "${TASK_ID}" \
     -p verbose False \
     -p OUTPUT_FOLDER "${OUT_DIR}" \
-    -p N_T 30 \
-    -p N_P 30
+    -p N_T 50 \
+    -p N_P 10
 
 echo "Job finished at: $(date '+%F %T')"
