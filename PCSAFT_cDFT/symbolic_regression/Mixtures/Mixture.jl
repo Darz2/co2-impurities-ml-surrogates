@@ -21,12 +21,11 @@ include("sr_utils.jl")
 # Data loading and feature engineering
 # ============================================================
 
-df      = CSV.read("CSV/interfacial_results/SEC_WSD.csv", DataFrame; normalizenames=true)
-df_cDFT = CSV.read("CSV/interfacial_results/feed_1_interfacial.csv", DataFrame; normalizenames=true)
+df      = CSV.read("1691761_CombinedDataset_A3.csv", DataFrame; normalizenames=true)
 # df = first(df, 5)
 
-# Mixture CO2 density gap
-df[!, :NUM1]        = df[!, :rhoL1_carbon_dioxide] .- df[!, :rhoV1_carbon_dioxide]
+# Mixture CO2 partial density gap
+df[!, :NUM1]        = df[!, :rhoL_carbon_dioxide] .- df[!, :rhoV_carbon_dioxide]
 
 # Pure CO2 density gap
 df[!, :DEN1]        = df[!, :rhoL0_carbon_dioxide] .- df[!, :rhoV0_carbon_dioxide]
@@ -55,11 +54,18 @@ df[!, :eps_base] = (df[!, :gamma_cDFT] .- df[!, :gamma_base]) ./ df[!, :gamma_ba
 # Dimensionless candidate features 
 # ============================================================
 
-# Total impurity liquid fraction
-df[!, :x_total_impurity] = df[!, :x_hydrogen] .+ df[!, :x_argon]
+# Dynamic impurity lists — all components except CO2
+x_imp_cols = [c for c in names(df) if startswith(c, "x_") && c != "x_carbon_dioxide"]
+y_imp_cols = [c for c in names(df) if startswith(c, "y_") && c != "y_carbon_dioxide"]
+z_imp_cols = [c for c in names(df) if startswith(c, "z_") && c != "z_carbon_dioxide"]
 
-# Total impurity vapor fraction 
-df[!, :y_total_impurity] = df[!, :y_hydrogen] .+ df[!, :y_argon]
+println("\nImpurity components (", length(x_imp_cols), "): ",
+        join(replace.(x_imp_cols, "x_" => ""), ", "))
+
+# Total impurity sums (liquid, vapor, feed)
+df[!, :x_total_impurity] = reduce(.+, [df[!, c] for c in x_imp_cols])
+df[!, :y_total_impurity] = reduce(.+, [df[!, c] for c in y_imp_cols])
+df[!, :z_total_impurity] = reduce(.+, [df[!, c] for c in z_imp_cols])
 
 # Total impurity phase-partitioning difference
 df[!, :delta_total_impurity] = df[!, :x_total_impurity] .- df[!, :y_total_impurity]
@@ -76,6 +82,7 @@ target = :eps_base
 
 # Compact first-pass feature set
 features = [
+    :z_total_impurity,
     :x_total_impurity,
     :y_total_impurity,
     :delta_total_impurity,
@@ -155,7 +162,7 @@ println("\n══ Fitting residual correction eps_base ══")
 hall_of_fame_eps_base = equation_search(
     X_train', y_train;
     options        = options,
-    niterations    = 200,
+    niterations    = 100,
     variable_names = string.(features),
     parallelism    = :multithreading,
 )
@@ -176,7 +183,7 @@ dominating_eps_base = calculate_pareto_frontier(hall_of_fame_eps_base)
 select_best_equation(dominating_eps_base, X_val, y_val, options)   # prints all equations with val RMSE
 
 print("\nEnter the equation index to use: ")
-best_idx = parse(Int, readline())
+best_idx = 4 # <-- CHANGE THIS INDEX BASED ON THE OUTPUT ABOVE
 
 best_eq_eps_base = dominating_eps_base[best_idx]
 best_eq_str = string_tree(best_eq_eps_base.tree, options)
