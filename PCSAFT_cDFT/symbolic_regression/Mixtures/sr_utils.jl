@@ -1,6 +1,8 @@
 using Serialization
 using SymbolicRegression
 using Statistics
+using Plots
+gr()   # GR backend — required for marker_z colorbar
 
 # ============================================================
 # Metrics
@@ -25,7 +27,8 @@ end
 # ============================================================
 
 safepow(x::T, a::T) where {T<:Real} = x > zero(T) ? x^a : T(NaN32)
-
+safe_div(x, y) = x / (abs(y) > 1e-12 ? y : 1e-12)
+safe_sqrt(x::T) where {T<:Real} = sqrt(abs(x))
 # ============================================================
 # Render options
 # Must match training operators
@@ -34,7 +37,7 @@ safepow(x::T, a::T) where {T<:Real} = x > zero(T) ? x^a : T(NaN32)
 function get_render_options()
     return Options(
         binary_operators        = (+, -, *, safepow),
-        unary_operators         = (abs,),
+        unary_operators         = (safe_sqrt, abs),
         complexity_of_operators = [safepow => 3, abs => 2],
         complexity_of_constants = 2,
     )
@@ -329,4 +332,71 @@ function select_best_equation(dominating, X_val, y_val, options)
     end
 
     return best_idx, best_rmse_val
+end
+
+# ============================================================
+# Parity plot
+# ============================================================
+
+function parity_plot(
+    y_train, yhat_train,
+    y_val,   yhat_val,
+    y_test,  yhat_test;
+    title    = "Parity Plot",
+    xlabel   = "Actual",
+    ylabel   = "Predicted",
+    eq_idx   = nothing,
+    savepath = nothing,
+)
+    rmse_train = rmse(y_train, yhat_train)
+    rmse_val   = rmse(y_val,   yhat_val)
+    rmse_test  = rmse(y_test,  yhat_test)
+    r2_train   = r2_score(y_train, yhat_train)
+    r2_val     = r2_score(y_val,   yhat_val)
+    r2_test    = r2_score(y_test,  yhat_test)
+
+    all_actual    = vcat(y_train,    y_val,    y_test)
+    all_predicted = vcat(yhat_train, yhat_val, yhat_test)
+    lo = min(minimum(all_actual), minimum(all_predicted))
+    hi = max(maximum(all_actual), maximum(all_predicted))
+
+    # residuals for diverging colorbar (red = over-predicted, blue = under-predicted)
+    res_train = yhat_train .- y_train
+    res_val   = yhat_val   .- y_val
+    res_test  = yhat_test  .- y_test
+    clim = maximum(abs, vcat(res_train, res_val, res_test))
+
+    p = scatter(y_train, yhat_train;
+                marker_z=res_train, color=cgrad(:RdBu, rev=true),
+                clims=(-clim, clim), colorbar=true,
+                colorbar_title="Residual (Predicted − Actual)",
+                label="Train", markersize=4, markerstrokewidth=0.3,
+                xlabel=xlabel, ylabel=ylabel, title=title, legend=:topleft,
+                size=(820, 620), right_margin=15Plots.mm, bottom_margin=5Plots.mm)
+    scatter!(p, y_val,  yhat_val;
+                marker_z=res_val,   color=cgrad(:RdBu, rev=true),
+                clims=(-clim, clim), colorbar=true, label="Validation",
+                markersize=4, markerstrokewidth=0.3, markershape=:diamond)
+    scatter!(p, y_test, yhat_test;
+                marker_z=res_test,  color=cgrad(:RdBu, rev=true),
+                clims=(-clim, clim), colorbar=true, label="Test",
+                markersize=4, markerstrokewidth=0.3, markershape=:utriangle)
+    plot!(p, [lo, hi], [lo, hi]; label="y = x", lw=2, color=:black, linestyle=:dash)
+
+    ax = lo + 0.52*(hi - lo)
+    rows = String[]
+    eq_idx !== nothing && push!(rows, "Eq. index = $eq_idx")
+    push!(rows, "Train: RMSE=$(round(rmse_train, sigdigits=2))  R²=$(round(r2_train, sigdigits=3))")
+    push!(rows, "Val:   RMSE=$(round(rmse_val,   sigdigits=2))  R²=$(round(r2_val,   sigdigits=3))")
+    push!(rows, "Test:  RMSE=$(round(rmse_test,  sigdigits=2))  R²=$(round(r2_test,  sigdigits=3))")
+    for (k, row) in enumerate(rows)
+        annotate!(p, ax, hi - (0.68 + (k-1)*0.06)*(hi - lo), text(row, 9, :left))
+    end
+
+    if savepath !== nothing
+        savefig(p, savepath)
+        println("Saved parity plot: $savepath")
+    end
+
+    return p
 end

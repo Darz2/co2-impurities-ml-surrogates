@@ -14,7 +14,7 @@ using SymbolicRegression
 cd(@__DIR__)
 mkpath("outputs")
 
-include("sr_utils.jl")
+include("../sr_utils.jl")
 
 # ============================================================
 # Data loading and feature engineering
@@ -82,7 +82,7 @@ options = Options(
 # Train symbolic regression
 # ============================================================
 
-println("\n══ Fitting gamma ══")
+println("\n══ Fitting gamma — CH4 ══")
 
 hall_of_fame_gamma = equation_search(
     X_train', y_train;
@@ -105,14 +105,13 @@ println(hall_of_fame_gamma)
 # ============================================================
 
 dominating_gamma = calculate_pareto_frontier(hall_of_fame_gamma)
-# best_idx, best_rmse_val = select_best_equation(dominating_gamma, X_val, y_val, options)
+select_best_equation(dominating_gamma, X_val, y_val, options)
 
-best_idx = 3
+best_idx = 3 # <-- CHANGE THIS INDEX BASED ON THE OUTPUT ABOVE
 best_eq_gamma = dominating_gamma[best_idx]
 best_eq_str = string_tree(best_eq_gamma.tree, options)
 
-println("\nChosen equation index (best validation RMSE) = ", best_idx)
-# println("Best validation RMSE = ", best_rmse_val)
+println("\nChosen equation index = ", best_idx)
 println("Chosen equation:")
 println(best_eq_gamma)
 
@@ -178,7 +177,7 @@ p_gamma = scatter(
     ylabel = "Predicted γ / [mN/m]",
     label = "Train",
     markersize = 4,
-    title = "Parity Plot for γ",
+    title = "Parity Plot for γ — CH4",
     legend = :topleft,
 )
 
@@ -225,13 +224,8 @@ export_hall_of_fame_tex(
     n_best=10,
     digits=4,
     feature_map=Dict("F1" => "(1 - Tr)"),
-    title="Surface tension correlations from symbolic regression"
+    title="Surface tension correlations from symbolic regression — CH4"
 )
 
 println("\nSaved TeX file:")
 println("outputs/equations_gamma.tex")
-
-# Optional PDF compilation:
-# run(`pdflatex -output-directory=outputs outputs/equations_gamma.tex`)
-# println("Saved PDF file:")
-# println("outputs/equations_gamma.pdf")

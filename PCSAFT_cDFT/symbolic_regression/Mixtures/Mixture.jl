@@ -144,12 +144,12 @@ println("Testing rows    = ", size(X_test, 1))
 # )
 
 options = Options(
-    binary_operators        = (+, -, *, safepow),
+    binary_operators        = (+, -, *, safepow,safe_div),
     unary_operators         = (abs,),
-    populations             = 50,
-    maxsize                 = 12,
-    parsimony               = 0.01f0,
-    complexity_of_operators = [safepow => 3, abs => 2],
+    populations             = 80,
+    maxsize                 = 16,
+    parsimony               = 0.003f0,
+    complexity_of_operators = [safe_div => 2, safepow => 3, abs => 2],
     complexity_of_constants = 2
 )
 
