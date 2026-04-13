@@ -1,10 +1,9 @@
 #!/bin/bash
 #SBATCH --job-name=ML-GPR_residual
 #SBATCH --partition=parallel-short
-#SBATCH --time=12:00:00
+#SBATCH --time=6:00:00
 #SBATCH --exclude=c171
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
 #SBATCH --mem-per-cpu=16G
 
 set -euo pipefail
@@ -26,6 +25,9 @@ mkdir -p "${OUTPUT_DIR}"
 papermill GPR.ipynb "${OUTPUT_DIR}/GPR_residual_output.ipynb" \
     -p OUTPUT_FOLDER "${OUTPUT_DIR}" \
     -p SEED 4555525 \
-    -p EXPERIMENT_MAX_SAMPLES null
+    -p EXPERIMENT_MAX_SAMPLES 2000 \
+    -p RESTART_OPTIMIZER 10 \
+    -p RUN_CV False \
+    -p CV_FOLDS 5
 
 echo "Job finished at: $(date +"%T")"
