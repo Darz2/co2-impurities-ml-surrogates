@@ -198,3 +198,65 @@ get nothing
 ```
 
 The extreme outliers (very low T, very high P) were in a sparse corner. Random sampling often missed them entirely; stratified sampling guarantees at least one draw from that T–P cell, so the model sees and learns those conditions.
+
+---
+
+## 9. Stratified Split — Extending to Dominant Impurity Species
+
+### Motivation
+
+Stratifying only on T and P was not enough. Certain impurity species (notably H₂S) are represented in very specific T–P windows. With a 2D T–P stratum, splits could still place all H₂S samples in the test set simply because they occupy a T–P cell that happened to be assigned there. The result: train R² ≈ 0.99, test/val R² ≈ 0.92 — the same train/test gap as before.
+
+### Implementation
+
+The stratum label is extended to a **3D key**: T-bin × P-bin × dominant_impurity.
+
+- **Dominant impurity** = `idxmax` of all non-CO₂ z_* columns (CO₂ is always the dominant species, so the "second highest" component is what distinguishes mixture type). Six distinct impurity labels in this dataset: Ar, CO, H₂, H₂S, CH₄, N₂.
+- **Bin counts:** `STRAT_BINS_SPLIT = 2` → 2×2×6 = 24 strata (minimum ~4 members per stratum at n = 1000, well above sklearn's minimum-2 requirement).
+- `STRAT_BINS_SAMPLING = 10` is kept for the initial random draw (singletons are acceptable in sampling; sklearn `stratify=` is not used there).
+
+---
+
+## 10. ARD-RBF ConvergenceWarning — Sparse Composition Features
+
+### What Happens
+
+The ARD-RBF kernel assigns one **length scale per feature**. A large length scale means "this dimension is irrelevant — the kernel is insensitive to variation along it." When a feature has near-zero variance in the training set (essentially always zero), the GPR optimizer correctly concludes that the optimal length scale is infinity, and keeps pushing it toward the upper bound until it hits the constraint.
+
+This triggers a `ConvergenceWarning` from sklearn:
+
+```
+ConvergenceWarning: lbfgs failed to converge (status=2):
+ABNORMAL_TERMINATION_IN_LBFGS
+```
+
+and produces **inflated predictive uncertainty** (blown-out ±2σ error bars) because the hyperparameter optimum was not truly reached.
+
+### Why Raising the Bound Does Not Help
+
+| Bound | Result |
+|---|---|
+| `(1e-2, 1e3)` | Hits `1e3`, ConvergenceWarning |
+| `(1e-2, 1e5)` | Hits `1e5`, still ConvergenceWarning |
+| `(1e-2, 1e10)` | Hits `1e10`, same warning |
+
+The true optimum is ∞. No finite upper bound will prevent the warning — the optimizer gradient at the boundary is non-zero, so L-BFGS never sees a true minimum.
+
+### The Root Cause
+
+Composition features like `z_carbon_monoxide`, `z_methane`, and `z_nitrogen` are sparse: they are zero for the vast majority of data points (most mixtures in this dataset do not contain those components). In a random subsample of 1000–2000 points, these features may have a training-set standard deviation below 0.01 — effectively zero for the purposes of the kernel.
+
+### The Fix — Variance-Threshold Feature Selection
+
+After the train/test/val split, compute the standard deviation of each feature **on X_train only** (no data leakage), and drop any feature below a threshold:
+
+```python
+_train_std = X_train.std()
+_keep      = _train_std[_train_std >= VAR_THRESHOLD_STD].index.tolist()
+X_train, X_test, X_val = X_train[_keep], X_test[_keep], X_val[_keep]
+features = _keep
+```
+
+`VAR_THRESHOLD_STD = 0.01` is the global parameter (exposed to papermill). Features dropped at n = 1000 typically include `z_carbon_monoxide`, `z_methane`, and `z_nitrogen`; at n = 5000 the set stabilises as more rare mixture types are included in the sample.
+
+**Why this is correct:** a feature the GPR cannot learn anything from (because it never varies in training) should not be in the model. Excluding it removes an unsolvable optimisation dimension and gives the L-BFGS clean convergence on the remaining features.
