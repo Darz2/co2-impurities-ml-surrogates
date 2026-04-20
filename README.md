@@ -33,8 +33,33 @@ A6/
 │   │   ├── BINARY_MIXTURES/        # CO2-CH4, CO2-N2, CO2-Ar, CO2-H2
 │   │   ├── QUATERNARY_MIXTURES/    # 4-component systems
 │   │   ├── BUILD_phase/            # Development examples
-│   │   └── ML_examples/            # Machine learning workflows
-│   └── GENDATA/                    # Data generation scripts
+│   │   └── ML_examples/            # ML workflows, symbolic regression (PySR/Julia)
+│   ├── GENDATA/                    # Data generation scripts
+│   ├── DATASET_A1/                 # Dataset A1: VLE+IFT for random feeds (100 SLURM jobs)
+│   │   ├── CombinedDataset_A1.csv  # Aggregated results
+│   │   └── VLE_IFT_V4.ipynb        # Generation notebook
+│   ├── DATASET_A2/                 # Dataset A2: extended feed space (100 SLURM jobs)
+│   │   ├── CombinedDataset_A2.csv  # Aggregated results
+│   │   └── VLE_IFT_V4.ipynb        # Generation notebook
+│   ├── DATASET_A3/                 # Dataset A3: saturation curves and bulk feeds
+│   │   ├── ALL_FEED_RUN/           # All-feed sweep
+│   │   └── BULK_RUN/               # Bulk/saturation conditions
+│   ├── SEC/                        # Saturation envelope calculations
+│   │   ├── SEC_PURE.ipynb          # Pure fluid saturation
+│   │   ├── SEC_MULIT.ipynb         # Multicomponent saturation envelope
+│   │   └── SEC_REFPROP.ipynb       # REFPROP-based saturation reference
+│   ├── ML/                         # Machine learning models (trained on DATASET_A1)
+│   │   ├── PRE_ML.ipynb            # Data pre-processing and feature engineering
+│   │   ├── interfacial_results_dataset_A1.csv  # ML-ready dataset
+│   │   ├── RF/                     # Random Forest (γ, P_bubble, P_dew)
+│   │   ├── SVM/                    # Support Vector Machine (γ, P_bubble, P_dew)
+│   │   ├── XGBoost/                # XGBoost (γ, P_bubble, P_dew)
+│   │   └── TabPFN/                 # TabPFN transformer (γ, P_bubble, P_dew)
+│   ├── GaussianProcessRegression/  # GPR and sparse GP models
+│   │   ├── GPR.ipynb               # Standard GP regression
+│   │   ├── SVGP_GPR_RESIDUAL.ipynb # Sparse Variational GP on residuals
+│   │   └── SLURM_GPR_residual_*/   # GPR runs at 1000–5000 inducing points
+│   └── symbolic_regression/        # Symbolic regression (PySR)
 ├── feos_09/                        # feos library (submodule)
 ├── py_A6/                          # Python virtual environment
 └── pyproject.toml                  # Project configuration
@@ -158,6 +183,39 @@ gamma_mix = model.compute_gamma_mixture(
 - Classical Nucleation Theory (CNT) for metastable phase limits
 - Integration with REFPROP, Clapeyron.jl, and feos
 
+## Datasets
+
+| Dataset | Description | Key file |
+|---------|-------------|----------|
+| `DATASET_A1/` | Random feed compositions, VLE+IFT via 100 SLURM jobs | `CombinedDataset_A1.csv` |
+| `DATASET_A2/` | Extended feed space, same workflow | `CombinedDataset_A2.csv` |
+| `DATASET_A3/` | Saturation-curve sweeps and bulk-condition runs | `ALL_FEED_RUN/`, `BULK_RUN/` |
+
+Features: **T, P, z_CO2, z_H2, z_N2, z_Ar, z_CH4, z_O2, z_CO, z_H2S**.
+Targets: **γ (mN/m)**, **P_bubble (Pa)**, **P_dew (Pa)**.
+
+## Machine Learning Models
+
+All models are in `PCSAFT_cDFT/ML/` and trained on DATASET_A1 (pre-processed via `PRE_ML.ipynb`).
+
+| Model | Folder | γ test R² | Notes |
+|-------|--------|-----------|-------|
+| Random Forest | `ML/RF/` | 0.9995 | 500 estimators |
+| SVM | `ML/SVM/` | — | Radial basis kernel |
+| XGBoost | `ML/XGBoost/` | — | depth=6, lr=0.05 |
+| TabPFN | `ML/TabPFN/` | **0.99995** | Transformer-based tabular model |
+
+Each model folder contains local notebooks and `SLURM_*/` subdirectories with HPC-run outputs (predictions CSV + metrics JSON).
+
+### Gaussian Process Regression
+
+`PCSAFT_cDFT/GaussianProcessRegression/` contains:
+
+- `GPR.ipynb` — standard exact GP regression
+- `SVGP_GPR_RESIDUAL.ipynb` — Sparse Variational GP trained on residuals from another model, for scalable uncertainty quantification
+- `SLURM_GPR_residual_{1000..5000}/` — GPR HPC runs at varying inducing-point counts
+- `SLURM_SVGP_residual/` — SVGP HPC run
+
 ## Examples
 
 Jupyter notebooks are provided in `PCSAFT_cDFT/examples/`:
@@ -167,7 +225,7 @@ Jupyter notebooks are provided in `PCSAFT_cDFT/examples/`:
 | `BINARY_MIXTURES/` | CO2-CH4, CO2-N2, CO2-Ar, CO2-H2 phase diagrams and IFT |
 | `QUATERNARY_MIXTURES/` | 4-component CO2-H2-Ar-N2 systems |
 | `BUILD_phase/` | VLE/IFT workflow development |
-| `ML_examples/` | Machine learning for property prediction |
+| `ML_examples/` | ML workflows and symbolic regression (PySR/Julia) |
 
 ## References
 
