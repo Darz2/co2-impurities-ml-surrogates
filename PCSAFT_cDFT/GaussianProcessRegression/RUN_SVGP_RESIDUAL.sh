@@ -1,11 +1,11 @@
 #!/bin/bash
 #SBATCH --job-name=ML-SVGP_residual
-#SBATCH --partition=parallel
-#SBATCH --time=12:00:00
+#SBATCH --partition=parallel-short
+#SBATCH --time=6:00:00
 #SBATCH --exclude=c171
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
-#SBATCH --mem-per-cpu=8G
+#SBATCH --mem-per-cpu=4G
 
 set -euo pipefail
 
