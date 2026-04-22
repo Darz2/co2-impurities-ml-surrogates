@@ -4,7 +4,7 @@
 msg="${1:-Update repositories}"
 
 repos=(
-  "/home/darshan/A6/PCSAFT_cDFT/thermoift/src/thermoift/BINARY_INTERACTION_PARAMETERS"
+  # "/home/darshan/A6/PCSAFT_cDFT/thermoift/src/thermoift/BINARY_INTERACTION_PARAMETERS"
   "/home/darshan/A6/PCSAFT_cDFT/thermoift"
   "/home/darshan/A6"
 )

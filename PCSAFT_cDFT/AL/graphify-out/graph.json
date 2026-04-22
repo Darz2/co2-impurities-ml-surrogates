@@ -1,0 +1,229 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {
+      "label": "01_generate_pool.py",
+      "file_type": "code",
+      "source_file": "/home/darshan/A6/PCSAFT_cDFT/AL/01_generate_pool.py",
+      "source_location": "L1",
+      "id": "home_darshan_a6_pcsaft_cdft_al_01_generate_pool_py",
+      "community": 3,
+      "norm_label": "01_generate_pool.py"
+    },
+    {
+      "label": "02_GPR_AL.py",
+      "file_type": "code",
+      "source_file": "/home/darshan/A6/PCSAFT_cDFT/AL/02_GPR_AL.py",
+      "source_location": "L1",
+      "id": "home_darshan_a6_pcsaft_cdft_al_02_gpr_al_py",
+      "community": 1,
+      "norm_label": "02_gpr_al.py"
+    },
+    {
+      "label": "compute_U_T()",
+      "file_type": "code",
+      "source_file": "/home/darshan/A6/PCSAFT_cDFT/AL/02_GPR_AL.py",
+      "source_location": "L181",
+      "id": "02_gpr_al_compute_u_t",
+      "community": 0,
+      "norm_label": "compute_u_t()"
+    },
+    {
+      "label": "run_algorithm1()",
+      "file_type": "code",
+      "source_file": "/home/darshan/A6/PCSAFT_cDFT/AL/02_GPR_AL.py",
+      "source_location": "L201",
+      "id": "02_gpr_al_run_algorithm1",
+      "community": 0,
+      "norm_label": "run_algorithm1()"
+    },
+    {
+      "label": "stratified_select()",
+      "file_type": "code",
+      "source_file": "/home/darshan/A6/PCSAFT_cDFT/AL/02_GPR_AL.py",
+      "source_location": "L283",
+      "id": "02_gpr_al_stratified_select",
+      "community": 1,
+      "norm_label": "stratified_select()"
+    },
+    {
+      "label": "compute_pbubble_single()",
+      "file_type": "code",
+      "source_file": "/home/darshan/A6/PCSAFT_cDFT/AL/02_GPR_AL.py",
+      "source_location": "L323",
+      "id": "02_gpr_al_compute_pbubble_single",
+      "community": 2,
+      "norm_label": "compute_pbubble_single()"
+    },
+    {
+      "label": "make_selection_df()",
+      "file_type": "code",
+      "source_file": "/home/darshan/A6/PCSAFT_cDFT/AL/02_GPR_AL.py",
+      "source_location": "L368",
+      "id": "02_gpr_al_make_selection_df",
+      "community": 1,
+      "norm_label": "make_selection_df()"
+    },
+    {
+      "label": "Kernel uncertainty: U_T = diag(K_TT - K_TS K_SS\u207b\u00b9 K_ST)     X_T : (|T|, d) \u2014 can",
+      "file_type": "rationale",
+      "source_file": "/home/darshan/A6/PCSAFT_cDFT/AL/02_GPR_AL.py",
+      "source_location": "L182",
+      "id": "02_gpr_al_rationale_182",
+      "community": 0,
+      "norm_label": "kernel uncertainty: u_t = diag(k_tt - k_ts k_ss\u22121 k_st)     x_t : (|t|, d) \u2014 can"
+    },
+    {
+      "label": "Returns a list of pool indices in the order they were added to S.     Starts wit",
+      "file_type": "rationale",
+      "source_file": "/home/darshan/A6/PCSAFT_cDFT/AL/02_GPR_AL.py",
+      "source_location": "L202",
+      "id": "02_gpr_al_rationale_202",
+      "community": 0,
+      "norm_label": "returns a list of pool indices in the order they were added to s.     starts wit"
+    },
+    {
+      "label": "Proportional CO2-bin \u00d7 mixture_size stratified sample of size n.",
+      "file_type": "rationale",
+      "source_file": "/home/darshan/A6/PCSAFT_cDFT/AL/02_GPR_AL.py",
+      "source_location": "L284",
+      "id": "02_gpr_al_rationale_284",
+      "community": 1,
+      "norm_label": "proportional co2-bin \u00d7 mixture_size stratified sample of size n."
+    },
+    {
+      "label": "PC-SAFT bubble-point. Returns P in bar, or NaN on failure.",
+      "file_type": "rationale",
+      "source_file": "/home/darshan/A6/PCSAFT_cDFT/AL/02_GPR_AL.py",
+      "source_location": "L324",
+      "id": "02_gpr_al_rationale_324",
+      "community": 2,
+      "norm_label": "pc-saft bubble-point. returns p in bar, or nan on failure."
+    }
+  ],
+  "links": [
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/darshan/A6/PCSAFT_cDFT/AL/02_GPR_AL.py",
+      "source_location": "L181",
+      "weight": 1.0,
+      "_src": "home_darshan_a6_pcsaft_cdft_al_02_gpr_al_py",
+      "_tgt": "02_gpr_al_compute_u_t",
+      "source": "home_darshan_a6_pcsaft_cdft_al_02_gpr_al_py",
+      "target": "02_gpr_al_compute_u_t",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/darshan/A6/PCSAFT_cDFT/AL/02_GPR_AL.py",
+      "source_location": "L201",
+      "weight": 1.0,
+      "_src": "home_darshan_a6_pcsaft_cdft_al_02_gpr_al_py",
+      "_tgt": "02_gpr_al_run_algorithm1",
+      "source": "home_darshan_a6_pcsaft_cdft_al_02_gpr_al_py",
+      "target": "02_gpr_al_run_algorithm1",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/darshan/A6/PCSAFT_cDFT/AL/02_GPR_AL.py",
+      "source_location": "L283",
+      "weight": 1.0,
+      "_src": "home_darshan_a6_pcsaft_cdft_al_02_gpr_al_py",
+      "_tgt": "02_gpr_al_stratified_select",
+      "source": "home_darshan_a6_pcsaft_cdft_al_02_gpr_al_py",
+      "target": "02_gpr_al_stratified_select",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/darshan/A6/PCSAFT_cDFT/AL/02_GPR_AL.py",
+      "source_location": "L323",
+      "weight": 1.0,
+      "_src": "home_darshan_a6_pcsaft_cdft_al_02_gpr_al_py",
+      "_tgt": "02_gpr_al_compute_pbubble_single",
+      "source": "home_darshan_a6_pcsaft_cdft_al_02_gpr_al_py",
+      "target": "02_gpr_al_compute_pbubble_single",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/darshan/A6/PCSAFT_cDFT/AL/02_GPR_AL.py",
+      "source_location": "L368",
+      "weight": 1.0,
+      "_src": "home_darshan_a6_pcsaft_cdft_al_02_gpr_al_py",
+      "_tgt": "02_gpr_al_make_selection_df",
+      "source": "home_darshan_a6_pcsaft_cdft_al_02_gpr_al_py",
+      "target": "02_gpr_al_make_selection_df",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/darshan/A6/PCSAFT_cDFT/AL/02_GPR_AL.py",
+      "source_location": "L228",
+      "weight": 1.0,
+      "_src": "02_gpr_al_run_algorithm1",
+      "_tgt": "02_gpr_al_compute_u_t",
+      "source": "02_gpr_al_compute_u_t",
+      "target": "02_gpr_al_run_algorithm1",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/darshan/A6/PCSAFT_cDFT/AL/02_GPR_AL.py",
+      "source_location": "L182",
+      "weight": 1.0,
+      "_src": "02_gpr_al_rationale_182",
+      "_tgt": "02_gpr_al_compute_u_t",
+      "source": "02_gpr_al_compute_u_t",
+      "target": "02_gpr_al_rationale_182",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/darshan/A6/PCSAFT_cDFT/AL/02_GPR_AL.py",
+      "source_location": "L202",
+      "weight": 1.0,
+      "_src": "02_gpr_al_rationale_202",
+      "_tgt": "02_gpr_al_run_algorithm1",
+      "source": "02_gpr_al_run_algorithm1",
+      "target": "02_gpr_al_rationale_202",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/darshan/A6/PCSAFT_cDFT/AL/02_GPR_AL.py",
+      "source_location": "L284",
+      "weight": 1.0,
+      "_src": "02_gpr_al_rationale_284",
+      "_tgt": "02_gpr_al_stratified_select",
+      "source": "02_gpr_al_stratified_select",
+      "target": "02_gpr_al_rationale_284",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "/home/darshan/A6/PCSAFT_cDFT/AL/02_GPR_AL.py",
+      "source_location": "L324",
+      "weight": 1.0,
+      "_src": "02_gpr_al_rationale_324",
+      "_tgt": "02_gpr_al_compute_pbubble_single",
+      "source": "02_gpr_al_compute_pbubble_single",
+      "target": "02_gpr_al_rationale_324",
+      "confidence_score": 1.0
+    }
+  ],
+  "hyperedges": []
+}
