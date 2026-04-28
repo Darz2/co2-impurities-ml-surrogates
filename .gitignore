@@ -22,5 +22,7 @@ PCSAFT_cDFT/ML/XGBoost/SLURM_Pbubble/
 PCSAFT_cDFT/ML/XGBoost/SLURM_Pdew/
 PCSAFT_cDFT/ML/XGBoost/SLURM_gamma/
 
+PCSAFT_cDFT/thermoift/graphify-out
+
 CombinedDataset_A3.csv 
 1691761_CombinedDataset_A3.csv
