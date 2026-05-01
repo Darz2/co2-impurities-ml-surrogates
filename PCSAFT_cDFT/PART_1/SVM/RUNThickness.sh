@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH --job-name=ML-SVM_thickness
 #SBATCH --partition=highmem
-#SBATCH --time=24:00:00
-#SBATCH --exclude=c171
+#SBATCH --time=6:00:00
+#SBATCH --nodelist=c109
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
+#SBATCH --cpus-per-task=64
 #SBATCH --mem-per-cpu=4G
 
 set -euo pipefail

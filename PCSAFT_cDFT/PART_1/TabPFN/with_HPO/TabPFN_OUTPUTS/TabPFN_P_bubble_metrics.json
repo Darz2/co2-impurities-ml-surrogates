@@ -1,0 +1,114 @@
+{
+  "train_r2": 0.9999987871269012,
+  "test_r2": 0.9999957084250382,
+  "train_rmse": 0.006184430037038999,
+  "test_rmse": 0.006303660922818427,
+  "train_mae": 0.0051222215261113035,
+  "test_mae": 0.004781300593892842,
+  "val_r2": 0.9999972866961718,
+  "val_rmse": 0.005863130636051886,
+  "val_mae": 0.0052658483526399165,
+  "permutation_importance": [
+    {
+      "feature": "temperature",
+      "importance_mean": 4.089917015568347,
+      "importance_std": 0.47463794554276745
+    },
+    {
+      "feature": "pressure",
+      "importance_mean": 0.00026638554447018677,
+      "importance_std": 0.00022127918702081188
+    },
+    {
+      "feature": "z_carbon dioxide",
+      "importance_mean": 0.0,
+      "importance_std": 0.0
+    },
+    {
+      "feature": "z_oxygen",
+      "importance_mean": 0.0,
+      "importance_std": 0.0
+    },
+    {
+      "feature": "z_carbon monoxide",
+      "importance_mean": 0.0,
+      "importance_std": 0.0
+    }
+  ],
+  "shap_importance": [
+    {
+      "feature": "temperature",
+      "mean_abs_shap": 0.17361745039622012
+    },
+    {
+      "feature": "pressure",
+      "mean_abs_shap": 0.02740482489267993
+    },
+    {
+      "feature": "z_carbon dioxide",
+      "mean_abs_shap": 4.070817756958907e-17
+    },
+    {
+      "feature": "z_oxygen",
+      "mean_abs_shap": 2.4054832200211726e-17
+    },
+    {
+      "feature": "z_carbon monoxide",
+      "mean_abs_shap": 0.0
+    }
+  ],
+  "cv_r2_scores": [
+    -2.4997060472058585,
+    0.9451731086584927,
+    0.7637217307445943,
+    0.861582379959029,
+    -4.929460542420244
+  ],
+  "cv_r2_mean": -0.9717378740527973,
+  "cv_r2_std": 2.3683617277422346,
+  "cv_rmse_scores": [
+    1.1092867561584354,
+    0.16727000322444666,
+    0.4237801132871001,
+    0.39786519152896754,
+    3.1903112459089176
+  ],
+  "cv_rmse_mean": 1.0577026620215735,
+  "cv_rmse_std": 1.1118267757119824,
+  "cv_mae_scores": [
+    1.058283874324634,
+    0.16513608263760773,
+    0.42306423615299205,
+    0.3917974737377065,
+    2.938619740624353
+  ],
+  "cv_mae_mean": 0.9953802814954587,
+  "cv_mae_std": 1.0160019437797019,
+  "model": "TabPFN",
+  "features": [
+    "temperature",
+    "pressure",
+    "z_carbon dioxide",
+    "z_oxygen",
+    "z_carbon monoxide"
+  ],
+  "target": "P_bubble",
+  "seed": 454015,
+  "best_hyperparameters": {
+    "FINGERPRINT_FEATURE": 1,
+    "MIN_UNIQUE_FOR_NUMERICAL_FEATURES": 2,
+    "OUTLIER_REMOVAL_STD": 1,
+    "POLYNOMIAL_FEATURES": 0,
+    "PREPROCESS_TRANSFORMS": 54,
+    "REGRESSION_Y_PREPROCESS_TRANSFORMS": 2,
+    "average_before_softmax": 0,
+    "max_depth": 0,
+    "model_path": 1,
+    "model_type": 0,
+    "n_estimators": 0,
+    "softmax_temperature": 2
+  },
+  "best_hpo_score": -0.00040046302523262447,
+  "hpo_metric": "rmse",
+  "hpo_n_trials": 10
+}
