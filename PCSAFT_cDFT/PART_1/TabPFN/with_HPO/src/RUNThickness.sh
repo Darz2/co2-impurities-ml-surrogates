@@ -12,7 +12,8 @@ set -euo pipefail
 start_time=$(date +"%T")
 echo "Job started at: $start_time"
 
-cd "${SLURM_SUBMIT_DIR:-$PWD}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "${SCRIPT_DIR}/.."
 
 source /home/darshan/A6/py_A6/bin/activate
 export PATH="$HOME/Software/texlive/2025/bin/x86_64-linux:$PATH"
@@ -24,11 +25,14 @@ OUTPUT_DIR="SLURM_thickness"
 mkdir -p "${OUTPUT_DIR}"
 
 TEST_ROWS="${TEST_ROWS:-None}"
+N_TRIALS=100
 
-papermill TabPFNThickness.ipynb "${OUTPUT_DIR}/TabPFNThickness_output.ipynb" \
+echo "N_TRIALS=${N_TRIALS}"
+
+papermill TabPFNThickness_Calc.ipynb "${OUTPUT_DIR}/TabPFNThickness_Calc_output.ipynb" \
     -p PLOT_FOLDER "${OUTPUT_DIR}" \
-    -p SLURM_RUN_FULL True \
     -p TEST_ROWS "${TEST_ROWS}" \
+    -p N_TRIALS "${N_TRIALS}" \
     -p SEED 655552
 
 echo "Job finished at: $(date +"%T")"
