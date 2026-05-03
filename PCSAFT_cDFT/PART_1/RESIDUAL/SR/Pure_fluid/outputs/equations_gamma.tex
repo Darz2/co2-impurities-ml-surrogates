@@ -1,0 +1,74 @@
+\documentclass[11pt]{article}
+\usepackage{fontspec}
+\setmainfont{EB Garamond}
+\usepackage{unicode-math}
+\setmathfont{Garamond-Math}
+\usepackage[a4paper,margin=1in]{geometry}
+\begin{document}
+\section*{Surface tension correlations from symbolic regression}
+\[ T_r = \frac{T}{T_c}, \qquad F_1 = 1 - T_r \]
+
+\subsection*{Equation 1}
+Complexity: 1\\
+Loss: 19.9917
+\[
+\sigma = 7.611
+\]
+
+\subsection*{Equation 2}
+Complexity: 3\\
+Loss: 0.852208
+\[
+\sigma = (1 - T_r) 48.25
+\]
+
+\subsection*{Equation 3}
+Complexity: 5\\
+Loss: 0.00143133
+\[
+\sigma = \left((1 - T_r) 26.19\right)^{1.351}
+\]
+
+\subsection*{Equation 4}
+Complexity: 7\\
+Loss: 0.000107575
+\[
+\sigma = \left(((1 - T_r) 29.08) - 0.1882\right)^{1.297}
+\]
+
+\subsection*{Equation 5}
+Complexity: 9\\
+Loss: 1.15259e-5
+\[
+\sigma = \left(((1 - T_r) 31.8) - 0.6746\right)^{1.26} + 0.4703
+\]
+
+\subsection*{Equation 6}
+Complexity: 11\\
+Loss: 1.13977e-5
+\[
+\sigma = \left((((1 - T_r) + (1 - T_r)) 15.94) - 0.6893\right)^{1.259} + 0.4835
+\]
+
+\subsection*{Equation 7}
+Complexity: 15\\
+Loss: 4.15658e-6
+\[
+\sigma = \left((((1 - T_r) + (1 - T_r)) ((\left(3.023\right)^{1 - T_r} -1.717) + 15.07)) - 0.06706\right)^{1.375}
+\]
+
+\subsection*{Equation 8}
+Complexity: 19\\
+Loss: 3.02588e-6
+\[
+\sigma = \left((((1 - T_r) + (1 - T_r)) (((1 - T_r) (1 - T_r)) + ((\left(3.281\right)^{1 - T_r} -1.895) + 15.3))) - 0.07132\right)^{1.376}
+\]
+
+\subsection*{Equation 9}
+Complexity: 21\\
+Loss: 1.64121e-7
+\[
+\sigma = \left((((1 - T_r) + (1 - T_r)) ((((1 - T_r) - 2.058) \left(3.749\right)^{1 - T_r}) + 15.9)) + ((1 - T_r) - 0.3)\right)^{1.333} + 0.1989
+\]
+
+\end{document}
