@@ -1,10 +1,10 @@
 #!/bin/bash
-#SBATCH --job-name=ML-SVGP_residual
-#SBATCH --partition=parallel-short
-#SBATCH --time=6:00:00
-#SBATCH --exclude=c171
+#SBATCH --job-name=SVGP_residual
+#SBATCH --partition=highmem
+#SBATCH --time=24:00:00
+#SBATCH --nodelist=c109
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
+#SBATCH --cpus-per-task=96
 #SBATCH --mem-per-cpu=4G
 
 set -euo pipefail
@@ -37,13 +37,14 @@ papermill SVGP_GPR_RESIDUAL.ipynb "${OUTPUT_DIR}/SVGP_residual_output.ipynb" \
     -p SEED            4555525         \
     -p N_INDUCING      1500            \
     -p N_INDUCING_TAIL 0.30            \
-    -p TAIL_THRESHOLD  0.5             \
+    -p N_EXTREME_TAIL  0.10            \
+    -p TAIL_THRESHOLD  0.3             \
     -p TAIL_OVERSAMPLE 5               \
-    -p N_EPOCHS        200             \
+    -p N_EPOCHS        500             \
     -p BATCH_SIZE      1024            \
     -p LR              0.01            \
     -p LR_MIN          0.0001          \
-    -p RUN_CV          False           \
-    -p CV_EPOCHS       30
+    -p RUN_CV          True            \
+    -p CV_EPOCHS       100
 
 echo "Job finished at: $(date +"%T")"

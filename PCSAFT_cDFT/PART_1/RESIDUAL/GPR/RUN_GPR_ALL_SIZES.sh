@@ -1,7 +1,8 @@
 #!/bin/bash
 #SBATCH --job-name=ML-GPR_residual
 #SBATCH --partition=highmem
-#SBATCH --time=5-00:00:00
+#SBATCH --time=7-00:00:00
+#SBATCH --nodelist=c109
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=51
 #SBATCH --mem=64G
@@ -51,7 +52,7 @@ papermill GPR.ipynb "${OUTPUT_DIR}/GPR_residual_output.ipynb" \
     -p RESTART_OPTIMIZER    10               \
     -p STRAT_BINS_SAMPLING  10               \
     -p STRAT_BINS_SPLIT     2                \
-    -p RUN_CV               False            \
+    -p RUN_CV               True            \
     -p CV_FOLDS             5
 
 echo "Finished at: $(date +"%T")"
