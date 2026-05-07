@@ -57,6 +57,8 @@ fi
 
 source /home/darshan/A6/py_A6/bin/activate
 export PATH="$HOME/Software/texlive/2025/bin/x86_64-linux:$PATH"
+export PYTHONPATH="/home/darshan/A6/PCSAFT_cDFT/thermoift/src${PYTHONPATH:+:${PYTHONPATH}}"
+export PYTHONDONTWRITEBYTECODE=1
 
 command -v python    >/dev/null 2>&1 || { echo "Error: python not found";    exit 1; }
 command -v papermill >/dev/null 2>&1 || { echo "Error: papermill not found"; exit 1; }
