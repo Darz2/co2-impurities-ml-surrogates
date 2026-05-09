@@ -19,8 +19,8 @@ Tc_CO2  = Float64(crit["carbon_dioxide"]["Tc"])   # [K]
 Pc_CO2  = Float64(crit["carbon_dioxide"]["Pc"])   # [bar]
 
 # ── load data ─────────────────────────────────────────────────
-df_all = CSV.read("1691761_CombinedDataset_A3.csv", DataFrame; normalizenames=true)
-df     = filter(row -> row.source_id == SOURCE_ID, df_all)
+df      = CSV.read("../../CombinedDatasetSEC_A4.csv", DataFrame; normalizenames=true)
+df      = filter(row -> row.source_id == SOURCE_ID, df)
 
 # ---- Trial function to check -----
 df[!, :Tr_CO2] = df[!, :T] ./ Tc_CO2
@@ -28,17 +28,14 @@ df[!, :Pr_CO2] = df[!, :P] ./ Pc_CO2
 df[!, :Pr_over_Tr_CO2] = df[!, :Pr_CO2] ./ df[!, :Tr_CO2]
 
 # ── compute xvals and yvals ───────────────────────────────────
-r1             = (df[!, :rhoL_carbon_dioxide] .- df[!, :rhoV_carbon_dioxide]) ./
-                 (df[!, :rhoL0_carbon_dioxide] .- df[!, :rhoV0_carbon_dioxide])
-df[!, :gamma_base] = df[!, :gamma0_carbon_dioxide] .* r1 .^ 2
-
+df[!, :gamma_base] = df[!, :gamma_wsd_UC]   # uncorrected WSD model
+df[!, :gamma_cDFT] = df[!, :gamma_wsd_UC] .+ df[!, :gamma_cDFT_minus_wsd_uncorrected]
 # trial correction coefficients
 a = 0.0
-b = -0.35
+b = 0.0
 
 df[!, :eps_trial] = a .+ b .* df[!, :Pr_over_Tr_CO2]
 df[!, :gamma_trial] = df[!, :gamma_base] .* (1 .+ df[!, :eps_trial])
-df[!, :gamma_cDFT] = df[!, :gamma_wsd] .+ df[!, :gamma_cDFT_minus_wsd_uncorrected]
 
 xvals = df[!, :gamma_cDFT]          # reference / simulation
 yvals = df[!, :gamma_trial]          # WSD model

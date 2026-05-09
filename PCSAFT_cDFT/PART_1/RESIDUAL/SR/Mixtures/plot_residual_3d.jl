@@ -1,6 +1,4 @@
-using CSV
-using DataFrames
-using Plots
+using CSV, DataFrames, Plots
 plotlyjs()
 
 cd(@__DIR__)
@@ -17,7 +15,7 @@ PALETTE = [
 ]
 
 # ── Load full dataset once ───────────────────────────────────────────────────
-df_all = CSV.read("1691761_CombinedDataset_A3.csv", DataFrame; normalizenames=true)
+df_all = CSV.read("../../CombinedDatasetSEC_A4.csv", DataFrame; normalizenames=true)
 
 mkpath("outputs/multi_source")
 
@@ -29,10 +27,8 @@ for (i, sid) in enumerate(SOURCES)
     isempty(df) && (println("source_id $sid — no rows, skipping"); continue)
 
     # Compute eps_base
-    r1                 = (df[!, :rhoL_carbon_dioxide] .- df[!, :rhoV_carbon_dioxide]) ./
-                         (df[!, :rhoL0_carbon_dioxide] .- df[!, :rhoV0_carbon_dioxide])
-    df[!, :gamma_base] = df[!, :gamma0_carbon_dioxide] .* r1 .^ 2
-    df[!, :gamma_cDFT] = df[!, :gamma_wsd] .+ df[!, :gamma_cDFT_minus_wsd_uncorrected]
+    df[!, :gamma_base] = df[!, :gamma_wsd_UC]   # uncorrected WSD model
+    df[!, :gamma_cDFT] = df[!, :gamma_wsd_UC] .+ df[!, :gamma_cDFT_minus_wsd_uncorrected]
     df[!, :eps_base]   = (df[!, :gamma_cDFT] .- df[!, :gamma_base]) ./ df[!, :gamma_base]
 
     keep = isfinite.(df[!, :T]) .& isfinite.(df[!, :P]) .& isfinite.(df[!, :eps_base])
@@ -42,7 +38,7 @@ for (i, sid) in enumerate(SOURCES)
     Tr  = df[!, :T] ./ 309.147
     Pr  = df[!, :P] ./ 82.379
     eps = df[!, :eps_base]
-    eps_scaled = eps .* (1 .+ (-0.35) .* Pr ./ Tr)
+    eps_scaled = eps .* (1 .+ (0.0) .* Pr ./ Tr)
 
     col = PALETTE[mod1(i, length(PALETTE))]
 

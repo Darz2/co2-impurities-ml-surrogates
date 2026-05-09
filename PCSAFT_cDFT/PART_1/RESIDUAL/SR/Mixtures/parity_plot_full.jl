@@ -18,14 +18,12 @@ Tc_CO2 = Float64(crit["carbon_dioxide"]["Tc"])   # [K]
 Pc_CO2 = Float64(crit["carbon_dioxide"]["Pc"])   # [bar]
 
 # ── load full dataset (all source_ids) ───────────────────────
-df = CSV.read("1691761_CombinedDataset_A3.csv", DataFrame; normalizenames=true)
+df = CSV.read("../../CombinedDatasetSEC_A4.csv", DataFrame; normalizenames=true)
 println("Total rows: ", nrow(df))
 
 # ── compute gamma_base and gamma_cDFT ────────────────────────
-r1                 = (df[!, :rhoL_carbon_dioxide] .- df[!, :rhoV_carbon_dioxide]) ./
-                     (df[!, :rhoL0_carbon_dioxide] .- df[!, :rhoV0_carbon_dioxide])
-df[!, :gamma_base] = df[!, :gamma0_carbon_dioxide] .* r1 .^ 2
-df[!, :gamma_cDFT] = df[!, :gamma_wsd] .+ df[!, :gamma_cDFT_minus_wsd_uncorrected]
+df[!, :gamma_base] = df[!, :gamma_wsd_UC]   # uncorrected WSD model
+df[!, :gamma_cDFT] = df[!, :gamma_wsd_UC] .+ df[!, :gamma_cDFT_minus_wsd_uncorrected]
 
 # ---- Trial function to check -----
 df[!, :Tr_CO2]         = df[!, :T] ./ Tc_CO2

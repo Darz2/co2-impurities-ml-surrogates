@@ -14,39 +14,17 @@ using Parquet2
 
 cd(@__DIR__)
 mkpath("outputs")
-
 include("sr_utils.jl")
 
 # ============================================================
 # Data loading and feature engineering
 # ============================================================
-
-df      = CSV.read("1691761_CombinedDataset_A3.csv", DataFrame; normalizenames=true)
-# df = first(df, 5)
-
-# Mixture CO2 partial density gap
-df[!, :NUM1]        = df[!, :rhoL_carbon_dioxide] .- df[!, :rhoV_carbon_dioxide]
-
-# Pure CO2 density gap
-df[!, :DEN1]        = df[!, :rhoL0_carbon_dioxide] .- df[!, :rhoV0_carbon_dioxide]
-# df[!, :C]           = 1 .- (df[!, :x_hydrogen] .+ df[!, :x_argon])                        # Correction
-
-# Reference density-gap ratio
-df[!, :r1]          = df[!, :NUM1] ./ df[!, :DEN1]
-df[!, :r1sq]        = df[!, :r1] .^ 2
-
-# WSD baseline if only CO2 contributes
-# gamma_base = gamma0_CO2 * r1^2
-df[!, :gamma_base] = df[!, :gamma0_carbon_dioxide] .* df[!, :r1sq]
-
-# cDFT Gamma values
-# gamma_cDFT_minus_wsd_uncorrected = gamma_cDFT - gamma_wsd/gamma_base_corr
-df[!, :gamma_cDFT] = df[!, :gamma_wsd] .+ df[!, :gamma_cDFT_minus_wsd_uncorrected]
-
+df                  = CSV.read("../../CombinedDatasetSEC_A4.csv", DataFrame; normalizenames=true)
+df[!, :gamma_base]  = df[!, :gamma_wsd_UC]   # uncorrected WSD model
+df[!, :gamma_cDFT]  = df[!, :gamma_wsd_UC] .+ df[!, :gamma_cDFT_minus_wsd_uncorrected]
 # ============================================================
 # Symbolic Regression targets
 # ============================================================
-
 # Target : Relative residual vs baseline
 df[!, :eps_base] = (df[!, :gamma_cDFT] .- df[!, :gamma_base]) ./ df[!, :gamma_base]
 
@@ -103,7 +81,6 @@ end
 
 X = Matrix{Float64}(df[:, features])
 y = Vector{Float64}(df[:, target])
-
 
 # ============================================================
 # Train/validation/test split
