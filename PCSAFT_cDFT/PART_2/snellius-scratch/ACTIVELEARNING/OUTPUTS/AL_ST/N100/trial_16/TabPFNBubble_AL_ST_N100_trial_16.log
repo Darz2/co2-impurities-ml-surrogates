@@ -1,0 +1,4 @@
+Input Notebook:  TabPFNBubble_Calc.ipynb
+Output Notebook: /scratch-shared/draju/PART_2/ACTIVELEARNING/OUTPUTS/AL_ST/N100/trial_16/TabPFNBubble_AL_ST_N100_trial_16_output.ipynb
+Executing:   0%|          | 0/11 [00:00<?, ?cell/s]Executing notebook with kernel: python3
+Executing:   9%|▉         | 1/11 [00:02<00:24,  2.45s/cell]Executing:  36%|███▋      | 4/11 [00:06<00:10,  1.45s/cell]Executing:  45%|████▌     | 5/11 [00:07<00:08,  1.43s/cell]Executing:  64%|██████▎   | 7/11 [01:03<00:52, 13.14s/cell]Executing:  73%|███████▎  | 8/11 [01:03<00:30, 10.05s/cell]Executing:  82%|████████▏ | 9/11 [02:23<00:56, 28.01s/cell]Executing: 100%|██████████| 11/11 [02:25<00:00, 13.20s/cell]

@@ -1,0 +1,164 @@
+{
+  "train_r2": 0.9999995252560984,
+  "test_r2": 0.9999990620219736,
+  "train_rmse": 0.004244895201807166,
+  "test_rmse": 0.006029618874810746,
+  "train_mae": 0.002504793687448786,
+  "test_mae": 0.003446439472010804,
+  "val_r2": 0.9999990352678534,
+  "val_rmse": 0.006001144246510742,
+  "val_mae": 0.0033529244034650307,
+  "permutation_importance": [
+    {
+      "feature": "temperature",
+      "importance_mean": 7.198775564922316,
+      "importance_std": 0.08938408876518175
+    },
+    {
+      "feature": "pressure",
+      "importance_mean": 2.108637024705674,
+      "importance_std": 0.025526159252784977
+    },
+    {
+      "feature": "z_hydrogen",
+      "importance_mean": 0.5854522055533253,
+      "importance_std": 0.010723959436643895
+    },
+    {
+      "feature": "z_carbon dioxide",
+      "importance_mean": 0.32614041636688185,
+      "importance_std": 0.007018902018999762
+    },
+    {
+      "feature": "z_methane",
+      "importance_mean": 0.1959804439596106,
+      "importance_std": 0.00581523296892898
+    },
+    {
+      "feature": "z_hydrogen sulfide",
+      "importance_mean": 0.1770018233388565,
+      "importance_std": 0.004001364977960092
+    },
+    {
+      "feature": "z_nitrogen",
+      "importance_mean": 0.10055490511853568,
+      "importance_std": 0.005682792636196815
+    },
+    {
+      "feature": "z_carbon monoxide",
+      "importance_mean": 0.0933704526651757,
+      "importance_std": 0.0027015571694198664
+    },
+    {
+      "feature": "z_argon",
+      "importance_mean": 0.049383745064474696,
+      "importance_std": 0.0022921466849920146
+    },
+    {
+      "feature": "z_oxygen",
+      "importance_mean": 0.03169199154908002,
+      "importance_std": 0.0018273646001974522
+    }
+  ],
+  "shap_importance": [
+    {
+      "feature": "temperature",
+      "mean_abs_shap": 8.163838673397567
+    },
+    {
+      "feature": "pressure",
+      "mean_abs_shap": 1.0015487166117032
+    },
+    {
+      "feature": "z_hydrogen",
+      "mean_abs_shap": 0.36409069744231104
+    },
+    {
+      "feature": "z_carbon dioxide",
+      "mean_abs_shap": 0.25737736517428295
+    },
+    {
+      "feature": "z_argon",
+      "mean_abs_shap": 0.11362618049801247
+    },
+    {
+      "feature": "z_methane",
+      "mean_abs_shap": 0.11040872380081147
+    },
+    {
+      "feature": "z_nitrogen",
+      "mean_abs_shap": 0.10758443317067382
+    },
+    {
+      "feature": "z_hydrogen sulfide",
+      "mean_abs_shap": 0.0641857750425622
+    },
+    {
+      "feature": "z_oxygen",
+      "mean_abs_shap": 0.05483844052908208
+    },
+    {
+      "feature": "z_carbon monoxide",
+      "mean_abs_shap": 0.045899633747672225
+    }
+  ],
+  "cv_r2_scores": [
+    0.9999787062129633,
+    0.9999503122894863,
+    0.9999494411020721,
+    0.9999260676361911,
+    0.9999778039089805
+  ],
+  "cv_r2_mean": 0.9999564662299386,
+  "cv_r2_std": 1.9805106908527577e-05,
+  "cv_rmse_scores": [
+    0.028790865887613263,
+    0.043707817996051175,
+    0.04379238478003201,
+    0.05261086598547934,
+    0.028695445122582725
+  ],
+  "cv_rmse_mean": 0.03951947595435171,
+  "cv_rmse_std": 0.009374936471775782,
+  "cv_mae_scores": [
+    0.01569638035362882,
+    0.02341312067992886,
+    0.021002924240603876,
+    0.024347831562597268,
+    0.01604579326916222
+  ],
+  "cv_mae_mean": 0.02010121002118421,
+  "cv_mae_std": 0.0036239361112955664,
+  "model": "TabPFN",
+  "features": [
+    "temperature",
+    "pressure",
+    "z_carbon dioxide",
+    "z_hydrogen",
+    "z_nitrogen",
+    "z_argon",
+    "z_methane",
+    "z_oxygen",
+    "z_carbon monoxide",
+    "z_hydrogen sulfide"
+  ],
+  "target": "gamma",
+  "seed": 844015,
+  "best_hyperparameters": {
+    "FINGERPRINT_FEATURE": 1,
+    "MIN_UNIQUE_FOR_NUMERICAL_FEATURES": 0,
+    "OUTLIER_REMOVAL_STD": 0,
+    "POLYNOMIAL_FEATURES": 0,
+    "PREPROCESS_TRANSFORMS": 92,
+    "REGRESSION_Y_PREPROCESS_TRANSFORMS": 1,
+    "average_before_softmax": 1,
+    "max_depth": 0,
+    "model_path": 5,
+    "model_type": 1,
+    "n_estimators": 0,
+    "softmax_temperature": 2
+  },
+  "best_hpo_score": -0.005621689620653638,
+  "hpo_metric": "rmse",
+  "hpo_n_trials": 100
+}

@@ -1,0 +1,4 @@
+Input Notebook:  XGBBubble.ipynb
+Output Notebook: /scratch-shared/draju/PART_2/STRATIFIED/XGB_OUTPUTS/N050/trial_08/XGBBubble_N050_trial_08_output.ipynb
+Executing:   0%|          | 0/10 [00:00<?, ?cell/s]Executing notebook with kernel: python3
+Executing:  10%|█         | 1/10 [00:03<00:27,  3.05s/cell]Executing:  50%|█████     | 5/10 [00:03<00:02,  2.09cell/s]Executing:  70%|███████   | 7/10 [00:03<00:01,  2.31cell/s]Executing:  90%|█████████ | 9/10 [00:05<00:00,  1.55cell/s]Executing: 100%|██████████| 10/10 [00:06<00:00,  1.52cell/s]

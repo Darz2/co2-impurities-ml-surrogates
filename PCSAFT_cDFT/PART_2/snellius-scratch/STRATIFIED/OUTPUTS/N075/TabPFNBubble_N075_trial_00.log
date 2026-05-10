@@ -1,0 +1,5 @@
+Input Notebook:  TabPFNBubble_Calc.ipynb
+Output Notebook: /scratch-shared/draju/PART_2/STRATIFIED/OUTPUTS/N075/TabPFNBubble_N075_trial_00_output.ipynb
+Executing:   0%|          | 0/11 [00:00<?, ?cell/s]Executing notebook with kernel: python3
+Executing:   9%|▉         | 1/11 [00:02<00:25,  2.55s/cell]Executing:  36%|███▋      | 4/11 [00:05<00:09,  1.36s/cell]Executing:  45%|████▌     | 5/11 [00:06<00:06,  1.16s/cell]Executing:  64%|██████▎   | 7/11 [00:21<00:15,  3.91s/cell]Executing:  73%|███████▎  | 8/11 [00:21<00:09,  3.03s/cell]Executing:  82%|████████▏ | 9/11 [00:37<00:12,  6.27s/cell][IPKernelApp] ERROR | KeyboardInterrupt caught in kernel.
+Executing: 100%|██████████| 11/11 [00:38<00:00,  3.52s/cell]

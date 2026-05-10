@@ -1,0 +1,4 @@
+Input Notebook:  TabPFNGamma_Calc.ipynb
+Output Notebook: /scratch-shared/draju/PART_2/ACTIVELEARNING/OUTPUTS/AL_ST/N075/TabPFNGamma_AL_ST_N075_output.ipynb
+Executing:   0%|          | 0/11 [00:00<?, ?cell/s]Executing notebook with kernel: python3
+Executing:   9%|▉         | 1/11 [00:02<00:22,  2.30s/cell]Executing:  36%|███▋      | 4/11 [00:05<00:09,  1.31s/cell]Executing:  64%|██████▎   | 7/11 [00:29<00:19,  4.88s/cell]Executing:  73%|███████▎  | 8/11 [00:29<00:11,  3.95s/cell]Executing:  82%|████████▏ | 9/11 [01:20<00:28, 14.43s/cell]Executing: 100%|██████████| 11/11 [01:21<00:00,  7.42s/cell]

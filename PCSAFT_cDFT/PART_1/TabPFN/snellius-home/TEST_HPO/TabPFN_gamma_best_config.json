@@ -1,0 +1,18 @@
+{
+  "best_score": -0.005621689620653638,
+  "metric": "rmse",
+  "best_config": {
+    "FINGERPRINT_FEATURE": 1,
+    "MIN_UNIQUE_FOR_NUMERICAL_FEATURES": 0,
+    "OUTLIER_REMOVAL_STD": 0,
+    "POLYNOMIAL_FEATURES": 0,
+    "PREPROCESS_TRANSFORMS": 92,
+    "REGRESSION_Y_PREPROCESS_TRANSFORMS": 1,
+    "average_before_softmax": 1,
+    "max_depth": 0,
+    "model_path": 5,
+    "model_type": 1,
+    "n_estimators": 0,
+    "softmax_temperature": 2
+  }
+}

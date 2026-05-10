@@ -1,0 +1,35 @@
+Input Notebook:  XGBBubble.ipynb
+Output Notebook: /scratch-shared/draju/PART_2/RANDOM/OUTPUTS/N100/trial_01/XGBBubble_N100_trial_01_output.ipynb
+Traceback (most recent call last):
+  File "/gpfs/home6/draju/A6/.A6/bin/papermill", line 6, in <module>
+    sys.exit(papermill())
+             ~~~~~~~~~^^
+  File "/gpfs/home6/draju/A6/.A6/lib/python3.13/site-packages/click/core.py", line 1514, in __call__
+    return self.main(*args, **kwargs)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/gpfs/home6/draju/A6/.A6/lib/python3.13/site-packages/click/core.py", line 1435, in main
+    rv = self.invoke(ctx)
+  File "/gpfs/home6/draju/A6/.A6/lib/python3.13/site-packages/click/core.py", line 1298, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home6/draju/A6/.A6/lib/python3.13/site-packages/click/core.py", line 853, in invoke
+    return callback(*args, **kwargs)
+  File "/gpfs/home6/draju/A6/.A6/lib/python3.13/site-packages/click/decorators.py", line 34, in new_func
+    return f(get_current_context(), *args, **kwargs)
+  File "/gpfs/home6/draju/A6/.A6/lib/python3.13/site-packages/papermill/cli.py", line 235, in papermill
+    execute_notebook(
+    ~~~~~~~~~~~~~~~~^
+        input_path=input_path,
+        ^^^^^^^^^^^^^^^^^^^^^^
+    ...<15 lines>...
+        execution_timeout=execution_timeout,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/gpfs/home6/draju/A6/.A6/lib/python3.13/site-packages/papermill/execute.py", line 93, in execute_notebook
+    parameter_predefined = _infer_parameters(nb, name=kernel_name, language=language)
+  File "/gpfs/home6/draju/A6/.A6/lib/python3.13/site-packages/papermill/inspection.py", line 43, in _infer_parameters
+    kernel_name = nb_kernel_name(nb, name)
+  File "/gpfs/home6/draju/A6/.A6/lib/python3.13/site-packages/papermill/utils.py", line 52, in nb_kernel_name
+    raise ValueError("No kernel name found in notebook and no override provided.")
+ValueError: No kernel name found in notebook and no override provided.

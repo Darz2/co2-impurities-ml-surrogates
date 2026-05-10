@@ -1,0 +1,5 @@
+Input Notebook:  XGBBubble.ipynb
+Output Notebook: /scratch-shared/draju/PART_2/ACTIVELEARNING/XGB_OUTPUTS/AL_MT/N100/trial_08/XGBBubble_AL_MT_N100_trial_08_output.ipynb
+Executing:   0%|          | 0/10 [00:00<?, ?cell/s]Executing notebook with kernel: python3
+Executing:  10%|█         | 1/10 [00:03<00:33,  3.72s/cell]Executing:  40%|████      | 4/10 [00:04<00:05,  1.11cell/s]Executing:  60%|██████    | 6/10 [00:05<00:02,  1.51cell/s]Executing:  80%|████████  | 8/10 [00:07<00:01,  1.19cell/s][IPKernelApp] ERROR | KeyboardInterrupt caught in kernel.
+Executing: 100%|██████████| 10/10 [00:08<00:00,  1.22cell/s]

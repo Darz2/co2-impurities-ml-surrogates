@@ -1,0 +1,4 @@
+Input Notebook:  XGBBubble.ipynb
+Output Notebook: /scratch-shared/draju/PART_2/ACTIVELEARNING/XGB_OUTPUTS/AL_MT/N075/trial_00/XGBBubble_AL_MT_N075_trial_00_output.ipynb
+Executing:   0%|          | 0/10 [00:00<?, ?cell/s]Executing notebook with kernel: python3
+Executing:  10%|█         | 1/10 [00:03<00:29,  3.26s/cell]Executing:  40%|████      | 4/10 [00:03<00:04,  1.46cell/s]Executing:  60%|██████    | 6/10 [00:04<00:02,  1.90cell/s]Executing:  70%|███████   | 7/10 [00:07<00:03,  1.11s/cell]Executing:  80%|████████  | 8/10 [00:09<00:02,  1.43s/cell]Executing: 100%|██████████| 10/10 [00:10<00:00,  1.03s/cell]

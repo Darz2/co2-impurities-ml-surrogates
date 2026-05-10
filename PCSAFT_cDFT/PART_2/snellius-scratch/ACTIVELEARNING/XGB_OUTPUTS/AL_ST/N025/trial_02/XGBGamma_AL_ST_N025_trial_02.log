@@ -1,0 +1,4 @@
+Input Notebook:  XGBGamma.ipynb
+Output Notebook: /scratch-shared/draju/PART_2/ACTIVELEARNING/XGB_OUTPUTS/AL_ST/N025/trial_02/XGBGamma_AL_ST_N025_trial_02_output.ipynb
+Executing:   0%|          | 0/10 [00:00<?, ?cell/s]Executing notebook with kernel: python3
+Executing:  10%|█         | 1/10 [00:14<02:13, 14.79s/cell]Executing:  30%|███       | 3/10 [00:14<00:27,  3.89s/cell]Executing:  50%|█████     | 5/10 [00:15<00:10,  2.14s/cell]Executing:  60%|██████    | 6/10 [00:16<00:07,  1.83s/cell]Executing:  80%|████████  | 8/10 [00:20<00:03,  1.78s/cell]Executing:  90%|█████████ | 9/10 [00:27<00:03,  3.14s/cell]Executing: 100%|██████████| 10/10 [00:28<00:00,  2.85s/cell]

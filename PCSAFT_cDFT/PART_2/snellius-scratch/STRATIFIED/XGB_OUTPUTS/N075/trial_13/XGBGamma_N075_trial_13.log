@@ -1,0 +1,5 @@
+Input Notebook:  XGBGamma.ipynb
+Output Notebook: /scratch-shared/draju/PART_2/STRATIFIED/XGB_OUTPUTS/N075/trial_13/XGBGamma_N075_trial_13_output.ipynb
+Executing:   0%|          | 0/10 [00:00<?, ?cell/s]Executing notebook with kernel: python3
+Executing:  10%|█         | 1/10 [00:06<00:55,  6.17s/cell]Executing:  40%|████      | 4/10 [00:06<00:07,  1.20s/cell]Executing:  60%|██████    | 6/10 [00:06<00:03,  1.24cell/s]Executing:  80%|████████  | 8/10 [00:12<00:03,  1.59s/cell][IPKernelApp] ERROR | KeyboardInterrupt caught in kernel.
+Executing: 100%|██████████| 10/10 [00:13<00:00,  1.34s/cell]

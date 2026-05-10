@@ -1,0 +1,28 @@
+Input Notebook:  XGBBubble.ipynb
+Output Notebook: /scratch-shared/draju/PART_2/RANDOM/XGB_OUTPUTS/N050/trial_01/XGBBubble_N050_trial_01_output.ipynb
+Executing:   0%|          | 0/10 [00:00<?, ?cell/s]Exception in thread Heartbeat:
+Traceback (most recent call last):
+  File "/sw/arch/RHEL9/EB_production/2025/software/Python/3.13.1-GCCcore-14.2.0/lib/python3.13/threading.py", line 1041, in _bootstrap_inner
+    self.run()
+    ~~~~~~~~^^
+  File "/gpfs/home6/draju/A6/.A6/lib/python3.13/site-packages/ipykernel/heartbeat.py", line 98, in run
+    self._bind_socket()
+    ~~~~~~~~~~~~~~~~~^^
+  File "/gpfs/home6/draju/A6/.A6/lib/python3.13/site-packages/ipykernel/heartbeat.py", line 77, in _bind_socket
+    self._try_bind_socket()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/gpfs/home6/draju/A6/.A6/lib/python3.13/site-packages/ipykernel/heartbeat.py", line 64, in _try_bind_socket
+    return self.socket.bind(f"{self.transport}://{self.ip}" + c + str(self.port))
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/gpfs/home6/draju/A6/.A6/lib/python3.13/site-packages/zmq/sugar/socket.py", line 320, in bind
+    super().bind(addr)
+    ~~~~~~~~~~~~^^^^^^
+  File "zmq/backend/cython/_zmq.py", line 1009, in zmq.backend.cython._zmq.Socket.bind
+    _check_rc(rc)
+    
+  File "zmq/backend/cython/_zmq.py", line 190, in zmq.backend.cython._zmq._check_rc
+    raise ZMQError(errno)
+    
+zmq.error.ZMQError: Address already in use (addr='tcp://127.0.0.1:59689')
+Executing notebook with kernel: python3
+Executing:  10%|█         | 1/10 [00:14<02:12, 14.69s/cell]Executing:  40%|████      | 4/10 [00:15<00:17,  2.86s/cell]Executing:  60%|██████    | 6/10 [00:16<00:07,  1.94s/cell]Executing:  80%|████████  | 8/10 [00:18<00:03,  1.60s/cell]Executing: 100%|██████████| 10/10 [00:19<00:00,  1.95s/cell]
