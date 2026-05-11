@@ -1,5 +1,0 @@
-property,display_property,best_cv_nrmse_method,best_cv_nrmse,best_cv_r2_method,best_cv_r2
-P_bubble,P_bubble,with_HPO,0.008231017996449208,with_HPO,0.9959902549228381
-P_dew,P_dew,with_HPO,0.002617429539934952,with_HPO,0.9997789284045947
-gamma,gamma,with_HPO,0.0018020874857979932,with_HPO,0.9999542183304799
-interfacial_thickness,thickness,without_HPO,0.005473106829615361,with_HPO,0.9982109779955801
