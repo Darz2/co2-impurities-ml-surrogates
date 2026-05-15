@@ -1,0 +1,104 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage[a4paper,margin=1in]{geometry}
+\begin{document}
+\section*{Surface tension correlations from symbolic regression}
+\noindent Equations are expressed in the canonical form
+\[
+  \sigma(T) = \sum_{i=0}^{k-1} s_i \left(1 - \frac{T}{T_c}\right)^{\!n_i}
+\]
+where $k$ is the number of terms and $(s_i, n_i)$ are the fitted coefficients.
+Non-canonical expressions are shown in their symbolic-regression form.
+
+\subsection*{Equation 1}
+\noindent Complexity: 1 \quad Loss: 27.3254 \\[4pt]
+\noindent $k = 1$ \\[2pt]
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+$i$ & $s_i$ & $n_i$ \
+\midrule
+0 & $7.889$ & $0.0$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\[
+\sigma(T) = 7.889
+\]
+
+\subsection*{Equation 2}
+\noindent Complexity: 3 \quad Loss: 0.769627 \\[4pt]
+\noindent $k = 1$ \\[2pt]
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+$i$ & $s_i$ & $n_i$ \
+\midrule
+0 & $57.56$ & $1.0$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\[
+\sigma(T) = 57.56 \left(1 - \dfrac{T}{T_{\!c}}\right)
+\]
+
+\subsection*{Equation 3}
+\noindent Complexity: 5 \quad Loss: 0.00190957 \\[4pt]
+\noindent $k = 1$ \\[2pt]
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+$i$ & $s_i$ & $n_i$ \
+\midrule
+0 & $93.33$ & $1.304$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\[
+\sigma(T) = 93.33 \left(1 - \dfrac{T}{T_{\!c}}\right)^{1.304}
+\]
+
+\subsection*{Equation 4}
+\noindent Complexity: 7 \quad Loss: 0.000264346 \\[4pt]
+\[
+\sigma = \left(-0.1518 + ((1 - T_r) 35.15)\right)^{1.265}
+\]
+
+\subsection*{Equation 5}
+\noindent Complexity: 9 \quad Loss: 7.18208e-5 \\[4pt]
+\[
+\sigma = \left(-0.3263 + ((1 - T_r) 36.44)\right)^{1.25} + 0.1557
+\]
+
+\subsection*{Equation 6}
+\noindent Complexity: 11 \quad Loss: 4.22016e-8 \\[4pt]
+\[
+\sigma = \left(20.27 (1 - T_r)\right)^{1.489} \left((1 - T_r) + 0.08212\right)^{-0.2819}
+\]
+
+\subsection*{Equation 7}
+\noindent Complexity: 13 \quad Loss: 3.44633e-8 \\[4pt]
+\[
+\sigma = (-0.0003211 + \left((1 - T_r) 20.35\right)^{1.487}) \left((1 - T_r) + 0.08307\right)^{-0.2803}
+\]
+
+\subsection*{Equation 8}
+\noindent Complexity: 15 \quad Loss: 3.03424e-8 \\[4pt]
+\[
+\sigma = (\left((1 - T_r) + 0.08611\right)^{-0.2815} (-0.04322 + \left(20.33 (1 - T_r)\right)^{1.487})) + 0.08405
+\]
+
+\subsection*{Equation 9}
+\noindent Complexity: 17 \quad Loss: 2.98196e-8 \\[4pt]
+\[
+\sigma = (\left(20.34 (1 - T_r)\right)^{1.484} + (((1 - T_r) (1 - T_r)) - 0.0005353)) \left((1 - T_r) + 0.08586\right)^{-0.2825}
+\]
+
+\subsection*{Equation 10}
+\noindent Complexity: 19 \quad Loss: 2.44336e-8 \\[4pt]
+\[
+\sigma = ((1 - T_r) ((1 - T_r) + 0.1919)) + (\left(0.08882 + (1 - T_r)\right)^{-0.2837} (-0.001052 + \left(20.33 (1 - T_r)\right)^{1.484}))
+\]
+
+\end{document}

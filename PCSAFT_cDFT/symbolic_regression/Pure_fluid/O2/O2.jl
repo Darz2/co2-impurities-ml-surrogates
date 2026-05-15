@@ -1,3 +1,21 @@
+# =============================================================================
+# STEP 2 of 3 — Symbolic Regression for pure O2
+#
+# Prerequisites : run Pure_component.ipynb Part 1 first
+#   → pure_component_results.csv must exist in this directory
+#
+# Run:
+#   julia --threads auto O2.jl
+#
+# Outputs (all in outputs/):
+#   hall_of_fame_gamma.jls     serialised Pareto frontier
+#   <timestamp>/hall_of_fame.csv  equation table — read in notebook Part 2
+#   equations_gamma.tex / .pdf LaTeX render
+#
+# After this finishes: open Pure_component.ipynb, set best_idx in Part 2,
+# and re-run the comparison cells.
+# =============================================================================
+
 # export JULIA_NUM_THREADS=2
 
 println("CPU threads available = ", Sys.CPU_THREADS)
@@ -24,15 +42,14 @@ df = CSV.read("pure_component_results.csv", DataFrame)
 
 df[!, :Tr] = df[!, :T_K] ./ df[!, :Tc]
 df[!, :F1] = 1 .- df[!, :Tr]
-df[!, :Pr] = df[!, :Psat] ./  df[!, :Pc]
 
 Tc_val = df[1, :Tc]
 Pc_val = df[1, :Pc]
 println("Tc (PC-SAFT+cDFT) = ", Tc_val, " K")
 println("Pc (PC-SAFT+cDFT) = ", Pc_val, " bar")
 
-target = :gamma
-exclude = [:rhoL, :rhoV, :Tc, :Pc, :Psat, :T_K, :Tr, target]
+target  = :gamma
+exclude = [:rhoL, :rhoV, :Tc, :Pc, :Psat, :T_K, :Tr, :Pr, target]
 features = [col for col in Symbol.(names(df)) if col ∉ exclude]
 
 println("\nFeatures used: ", features)
@@ -67,12 +84,27 @@ println("Training rows   = ", size(X_train, 1))
 println("Validation rows = ", size(X_val, 1))
 println("Testing rows    = ", size(X_test, 1))
 
+# Save split indices (1-based) so Python notebook can replicate the same split
+split_df = DataFrame(
+    index = vcat(train_idx, val_idx, test_idx),
+    split = vcat(fill("train", length(train_idx)),
+                 fill("val",   length(val_idx)),
+                 fill("test",  length(test_idx)))
+)
+CSV.write("outputs/split_indices.csv", split_df)
+println("Saved split indices to outputs/split_indices.csv")
+
 # ============================================================
 # Symbolic regression options
 # ============================================================
 
 options = Options(
     binary_operators = (+, *, safepow),
+    # Force the exponent of safepow to always be a constant leaf (complexity = 1).
+    # Indexed by binary_operators order: (+, *, safepow).
+    # This prevents variable-exponent forms like safepow(F1, safepow(F1, -0.025))
+    # and guarantees all equations are expressible as sigma = sum si*(1-Tr)^ni.
+    constraints      = [(-1, -1), (-1, -1), (-1, 1)],
     populations      = 50,
     maxsize          = 30,
     parsimony        = 0.005f0,
@@ -82,12 +114,12 @@ options = Options(
 # Train symbolic regression
 # ============================================================
 
-println("\n══ Fitting gamma — O2 ══")
+println("\n== Fitting gamma — O2 ==")
 
 hall_of_fame_gamma = equation_search(
     X_train', y_train;
     options        = options,
-    niterations    = 100,
+    niterations    = 1000,
     variable_names = string.(features),
     parallelism    = :multithreading,
 )
@@ -105,13 +137,13 @@ println(hall_of_fame_gamma)
 # ============================================================
 
 dominating_gamma = calculate_pareto_frontier(hall_of_fame_gamma)
-select_best_equation(dominating_gamma, X_val, y_val, options)
+# best_idx, best_rmse_val = select_best_equation(dominating_gamma, X_val, y_val, options)
 
-best_idx = 3 # <-- CHANGE THIS INDEX BASED ON THE OUTPUT ABOVE
+best_idx = 3   # preliminary choice for the parity plot — final choice is made in notebook Part 2
 best_eq_gamma = dominating_gamma[best_idx]
 best_eq_str = string_tree(best_eq_gamma.tree, options)
 
-println("\nChosen equation index = ", best_idx)
+println("\nChosen equation index (best validation RMSE) = ", best_idx)
 println("Chosen equation:")
 println(best_eq_gamma)
 
@@ -173,11 +205,11 @@ xmax = max(
 
 p_gamma = scatter(
     y_train, yhat_train;
-    xlabel = "Actual γ / [mN/m]",
-    ylabel = "Predicted γ / [mN/m]",
+    xlabel = "Actual gamma / [mN/m]",
+    ylabel = "Predicted gamma / [mN/m]",
     label = "Train",
     markersize = 4,
-    title = "Parity Plot for γ — O2",
+    title = "Parity Plot for gamma — O2",
     legend = :topleft,
 )
 
@@ -196,11 +228,11 @@ plot!(
 annotate!(p_gamma, xmin + 0.52*(xmax - xmin), xmax - 0.72*(xmax - xmin),
     text("Chosen Eq. index = $best_idx", 9, :left))
 annotate!(p_gamma, xmin + 0.52*(xmax - xmin), xmax - 0.78*(xmax - xmin),
-    text("Train: RMSE = $(round(rmse_train, sigdigits=2)), R² = $(round(r2_train, sigdigits=2))", 9, :left))
+    text("Train: RMSE = $(round(rmse_train, sigdigits=2)), R2 = $(round(r2_train, sigdigits=2))", 9, :left))
 annotate!(p_gamma, xmin + 0.52*(xmax - xmin), xmax - 0.84*(xmax - xmin),
-    text("Val: RMSE = $(round(rmse_val, sigdigits=2)), R² = $(round(r2_val, sigdigits=2))", 9, :left))
+    text("Val: RMSE = $(round(rmse_val, sigdigits=2)), R2 = $(round(r2_val, sigdigits=2))", 9, :left))
 annotate!(p_gamma, xmin + 0.52*(xmax - xmin), xmax - 0.90*(xmax - xmin),
-    text("Test: RMSE = $(round(rmse_test, sigdigits=2)), R² = $(round(r2_test, sigdigits=2))", 9, :left))
+    text("Test: RMSE = $(round(rmse_test, sigdigits=2)), R2 = $(round(r2_test, sigdigits=2))", 9, :left))
 
 savefig(p_gamma, "outputs/parity_plot_gamma.png")
 
@@ -229,3 +261,8 @@ export_hall_of_fame_tex(
 
 println("\nSaved TeX file:")
 println("outputs/equations_gamma.tex")
+
+# Optional PDF compilation:
+# run(`pdflatex -output-directory=outputs outputs/equations_gamma.tex`)
+# println("Saved PDF file:")
+# println("outputs/equations_gamma.pdf")

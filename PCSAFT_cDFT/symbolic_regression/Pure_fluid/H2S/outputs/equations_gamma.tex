@@ -1,0 +1,104 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage[a4paper,margin=1in]{geometry}
+\begin{document}
+\section*{Surface tension correlations from symbolic regression — H2S}
+\noindent Equations are expressed in the canonical form
+\[
+  \sigma(T) = \sum_{i=0}^{k-1} s_i \left(1 - \frac{T}{T_c}\right)^{\!n_i}
+\]
+where $k$ is the number of terms and $(s_i, n_i)$ are the fitted coefficients.
+Non-canonical expressions are shown in their symbolic-regression form.
+
+\subsection*{Equation 1}
+\noindent Complexity: 1 \quad Loss: 106.804 \\[4pt]
+\noindent $k = 1$ \\[2pt]
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+$i$ & $s_i$ & $n_i$ \
+\midrule
+0 & $15.34$ & $0.0$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\[
+\sigma(T) = 15.34
+\]
+
+\subsection*{Equation 2}
+\noindent Complexity: 3 \quad Loss: 2.81218 \\[4pt]
+\noindent $k = 1$ \\[2pt]
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+$i$ & $s_i$ & $n_i$ \
+\midrule
+0 & $66.92$ & $1.0$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\[
+\sigma(T) = 66.92 \left(1 - \dfrac{T}{T_{\!c}}\right)
+\]
+
+\subsection*{Equation 3}
+\noindent Complexity: 5 \quad Loss: 0.0100042 \\[4pt]
+\noindent $k = 1$ \\[2pt]
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+$i$ & $s_i$ & $n_i$ \
+\midrule
+0 & $92.51$ & $1.303$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+\[
+\sigma(T) = 92.51 \left(1 - \dfrac{T}{T_{\!c}}\right)^{1.303}
+\]
+
+\subsection*{Equation 4}
+\noindent Complexity: 7 \quad Loss: 0.00327739 \\[4pt]
+\[
+\sigma = -0.2565 + (\left(1 - T_r\right)^{1.281} 91.42)
+\]
+
+\subsection*{Equation 5}
+\noindent Complexity: 9 \quad Loss: 0.000369139 \\[4pt]
+\[
+\sigma = \left(117.1 (1 - T_r)\right)^{1.11} + ((1 - T_r) -108.8)
+\]
+
+\subsection*{Equation 6}
+\noindent Complexity: 11 \quad Loss: 9.9565e-5 \\[4pt]
+\[
+\sigma = \left(\left(1 - T_r\right)^{1 - T_r}\right)^{1 - T_r} (\left(1 - T_r\right)^{1.416} 118.7)
+\]
+
+\subsection*{Equation 7}
+\noindent Complexity: 13 \quad Loss: 3.61597e-5 \\[4pt]
+\[
+\sigma = -0.02382 + (\left(\left(1 - T_r\right)^{1 - T_r}\right)^{1 - T_r} (\left(1 - T_r\right)^{1.414} 118.5))
+\]
+
+\subsection*{Equation 8}
+\noindent Complexity: 15 \quad Loss: 1.30971e-5 \\[4pt]
+\[
+\sigma = (\left((1 - T_r) - 0.001701\right)^{1.393} (\left(\left(1 - T_r\right)^{1 - T_r}\right)^{1 - T_r} + 0.1241)) 102.2
+\]
+
+\subsection*{Equation 9}
+\noindent Complexity: 17 \quad Loss: 1.23437e-5 \\[4pt]
+\[
+\sigma = (0.003525 + (102.5 \left((1 - T_r) - 0.001784\right)^{1.393})) (\left(\left(1 - T_r\right)^{1 - T_r}\right)^{1 - T_r} + 0.1218)
+\]
+
+\subsection*{Equation 10}
+\noindent Complexity: 21 \quad Loss: 5.54182e-6 \\[4pt]
+\[
+\sigma = (\left(\left(\left(\left(1 - T_r\right)^{0.476}\right)^{1 - T_r}\right)^{1 - T_r} (1 - T_r)\right)^{1.323} + (-0.05174 ((1 - T_r) + (1 - T_r)))) \left(39.97\right)^{1.302}
+\]
+
+\end{document}

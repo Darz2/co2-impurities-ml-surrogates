@@ -256,38 +256,149 @@ function export_hall_of_fame_tex(
     feature_map=Dict("F1" => "(1 - Tr)"),
     title="Symbolic Regression Equations"
 )
-    hof = load_hall_of_fame(filepath)
-    options = get_render_options()
-    dominating = calculate_pareto_frontier(hof)
-    n_display = min(n_best, length(dominating))
+    hof      = load_hall_of_fame(filepath)
+    options  = get_render_options()
+    dom      = calculate_pareto_frontier(hof)
+    n_display = min(n_best, length(dom))
 
     open(String(output_tex), "w") do io
         println(io, raw"\documentclass[11pt]{article}")
         println(io, raw"\usepackage{amsmath}")
+        println(io, raw"\usepackage{booktabs}")
         println(io, raw"\usepackage[a4paper,margin=1in]{geometry}")
         println(io, raw"\begin{document}")
         println(io, "\\section*{$title}")
-        println(io, raw"\[ T_r = \frac{T}{T_c}, \qquad F_1 = 1 - T_r \]")
-        println(io, "")
+
+        # ── canonical form definition ─────────────────────────────────────
+        println(io, raw"""
+\noindent Equations are expressed in the canonical form
+\[
+  \sigma(T) = \sum_{i=0}^{k-1} s_i \left(1 - \frac{T}{T_c}\right)^{\!n_i}
+\]
+where $k$ is the number of terms and $(s_i, n_i)$ are the fitted coefficients.
+Non-canonical expressions are shown in their symbolic-regression form.
+""")
 
         for i in 1:n_display
-            member = dominating[i]
-            eq_str = get_equation_string(member, options)
+            member     = dom[i]
+            eq_str     = get_equation_string(member, options)
             complexity = compute_complexity(member, options)
-            loss = round(member.loss, sigdigits=6)
-            eq_latex = string_to_latex(eq_str; digits=digits, feature_map=feature_map)
+            loss       = round(member.loss; sigdigits=6)
+            canonical  = extract_canonical(eq_str)
 
             println(io, "\\subsection*{Equation $i}")
-            println(io, "Complexity: $complexity\\\\")
-            println(io, "Loss: $loss")
-            println(io, raw"\[")
-            println(io, "\\sigma = $eq_latex")
-            println(io, raw"\]")
+            println(io, "\\noindent Complexity: $complexity \\quad Loss: $loss \\\\[4pt]")
+
+            if canonical !== nothing
+                k = length(canonical)
+                println(io, "\\noindent \$k = $k\$ \\\\[2pt]")
+
+                # coefficient table
+                println(io, raw"\begin{center}")
+                println(io, raw"\begin{tabular}{ccc}")
+                println(io, raw"\toprule")
+                println(io, raw"$i$ & $s_i$ & $n_i$ \\")
+                println(io, raw"\midrule")
+                for (idx, (s, n)) in enumerate(canonical)
+                    s_s = string(round(s; sigdigits=digits))
+                    n_s = string(round(n; sigdigits=digits))
+                    println(io, "$(idx-1) & \$$s_s\$ & \$$n_s\$ \\\\")
+                end
+                println(io, raw"\bottomrule")
+                println(io, raw"\end{tabular}")
+                println(io, raw"\end{center}")
+
+                # rendered equation
+                println(io, raw"\[")
+                println(io, "\\sigma(T) = $(canonical_to_latex(canonical; digits=digits))")
+                println(io, raw"\]")
+            else
+                # fall back to generic SR rendering
+                eq_latex = string_to_latex(eq_str; digits=digits, feature_map=feature_map)
+                println(io, raw"\[")
+                println(io, "\\sigma = $eq_latex")
+                println(io, raw"\]")
+            end
             println(io, "")
         end
 
         println(io, raw"\end{document}")
     end
+end
+
+# ============================================================
+# Canonical form:  σ(T) = Σᵢ sᵢ (1 - T/Tc)^nᵢ
+# ============================================================
+
+# Split an expression string on top-level '+' operators only.
+function _split_plus(s::AbstractString)
+    parts, depth, buf = String[], 0, IOBuffer()
+    for c in String(s)
+        if c == '(';  depth += 1
+        elseif c == ')';  depth -= 1
+        end
+        if c == '+' && depth == 0
+            t = strip(String(take!(buf)))
+            isempty(t) || push!(parts, t)
+        else
+            print(buf, c)
+        end
+    end
+    t = strip(String(take!(buf)))
+    isempty(t) || push!(parts, t)
+    return parts
+end
+
+# Try to parse one additive term into (s, n) so that term = s*(1-Tr)^n.
+# Returns (s, n) or nothing.
+function _parse_power_term(t::AbstractString)
+    t = strip(String(t))
+
+    # pure constant  →  n = 0
+    occursin(r"^-?\d+\.?\d*(?:[eE][+-]?\d+)?$", t) &&
+        return (parse(Float64, t), 0.0)
+
+    # F1 * c  →  n = 1
+    m = match(r"^F1 \* (-?\d+\.?\d*(?:[eE][+-]?\d+)?)$", t)
+    m !== nothing && return (parse(Float64, m.captures[1]), 1.0)
+
+    # safepow(F1 * c, n)  →  s = c^n
+    m = match(r"^safepow\(F1 \* (-?\d+\.?\d*(?:[eE][+-]?\d+)?), (-?\d+\.?\d*(?:[eE][+-]?\d+)?)\)$", t)
+    if m !== nothing
+        c = parse(Float64, m.captures[1])
+        n = parse(Float64, m.captures[2])
+        return (c ^ n, n)
+    end
+
+    return nothing
+end
+
+# Return a Vector of (s, n) pairs if eq_str fits the canonical form, else nothing.
+function extract_canonical(eq_str::AbstractString)
+    result = Tuple{Float64,Float64}[]
+    for t in _split_plus(strip(String(eq_str)))
+        p = _parse_power_term(t)
+        p === nothing && return nothing
+        push!(result, p)
+    end
+    isempty(result) ? nothing : result
+end
+
+# Render canonical terms as a LaTeX expression.
+function canonical_to_latex(terms; digits=5)
+    pieces = String[]
+    for (s, n) in terms
+        s_s = string(round(s; sigdigits=digits))
+        if abs(n) < 1e-9
+            push!(pieces, s_s)
+        elseif abs(n - 1.0) < 1e-9
+            push!(pieces, "$s_s \\left(1 - \\dfrac{T}{T_{\\!c}}\\right)")
+        else
+            n_s = string(round(n; sigdigits=digits))
+            push!(pieces, "$s_s \\left(1 - \\dfrac{T}{T_{\\!c}}\\right)^{$n_s}")
+        end
+    end
+    return join(pieces, " + ")
 end
 
 # ============================================================
