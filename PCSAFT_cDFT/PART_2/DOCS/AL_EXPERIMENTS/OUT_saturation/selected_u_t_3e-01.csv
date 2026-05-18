@@ -1,0 +1,3 @@
+feed_id,feed_source,template_name,mixture_size,active_components,CO2,H2,Ar,N2,CH4,O2,CO,H2S,pool_idx,U_at_pick
+259,Random (Dirichlet),dirichlet,4,"CO2,H2,N2,O2",0.95,0.0229447878805559,0.0,0.0070513335295011,0.0,0.0200038785899429,0.0,0.0,259,
+377,Random (Dirichlet),dirichlet,5,"CO2,Ar,O2,CO,H2S",0.96,0.0,0.0056309951640397,0.0,0.0,0.0049352171951375,0.0127925951312575,0.0166411925095651,377,
