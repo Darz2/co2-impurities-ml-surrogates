@@ -1,54 +1,68 @@
 #!/bin/bash
 
-#SBATCH -J Plot_TabPFN
-#SBATCH -t 01:00:00
-#SBATCH -p thin
-#SBATCH -N 1
-#SBATCH --ntasks=4
-#SBATCH -o /gpfs/home6/draju/A6/TabPFN/without_HPO/slurm-plots-%j.out
+#SBATCH --job-name=TabPFN-PLOTS
+#SBATCH --partition=highmem
+#SBATCH --time=12:00:00
+#SBATCH --nodelist=c108
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem-per-cpu=4G
 
 set -euo pipefail
 
 echo "Plot job started at: $(date +"%T")"
 
-cd "${SLURM_SUBMIT_DIR:-$PWD}"
+cd "${SLURM_SUBMIT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
 
-module load 2025
-module load Python/3.13.1-GCCcore-14.2.0
-
-cd /gpfs/home6/draju/A6/TabPFN/without_HPO
-source /gpfs/home6/draju/A6/.A6/bin/activate
-
+source /home/darshan/A6/py_A6/bin/activate
+export PATH="$HOME/Software/texlive/2025/bin/x86_64-linux:$PATH"
 export MPLBACKEND=Agg
 
-OUTPUT_ROOT="/gpfs/home6/draju/A6/TabPFN/without_HPO"
+echo "Python: $(which python)"
+echo "LaTeX : $(which latex || echo 'latex not found')"
+
+# Maps: notebook  output_base  plot_folder (where inputs live and outputs go)
+tasks=(
+    "TabPFNBubble_Plots.ipynb     TabPFNBubble_Plots     TabPFN_P_bubble_OUTPUTS"
+    "TabPFNDew_Plots.ipynb        TabPFNDew_Plots        TabPFN_P_dew_OUTPUTS"
+    "TabPFNGamma_Plots.ipynb      TabPFNGamma_Plots      TabPFN_gamma_OUTPUTS"
+    "TabPFNThickness_Plots.ipynb  TabPFNThickness_Plots  TabPFN_interfacial_thickness_OUTPUTS"
+)
 
 run_plot() {
     local notebook="$1"
     local output_name="$2"
     local plot_folder="$3"
+    local log_file="${plot_folder}/${output_name}.log"
 
-    local output_dir="${OUTPUT_ROOT}/${plot_folder}"
-    mkdir -p "${output_dir}"
+    mkdir -p "${plot_folder}"
 
-    echo "Starting ${notebook} at $(date +"%T")"
-    papermill "${notebook}" "${output_dir}/${output_name}_output.ipynb" \
-        -p PLOT_FOLDER "${output_dir}"
-    echo "Finished ${notebook} at $(date +"%T")"
+    echo "[$(date +"%T")] Starting ${notebook} (logs -> ${log_file})"
+    papermill "${notebook}" "${plot_folder}/${output_name}_output.ipynb" \
+        -p PLOT_FOLDER "${plot_folder}" \
+        > "${log_file}" 2>&1
+    echo "[$(date +"%T")] Finished ${notebook}"
 }
 
-run_plot TabPFNBubble_Plots.ipynb TabPFNBubble_Plots SLURMBubble &
-pid_bubble=$!
+declare -a pids names
+for task in "${tasks[@]}"; do
+    read -r notebook output_name plot_folder <<< "${task}"
+    run_plot "${notebook}" "${output_name}" "${plot_folder}" &
+    pids+=("$!")
+    names+=("${notebook}")
+done
 
-run_plot TabPFNDew_Plots.ipynb TabPFNDew_Plots SLURMDew &
-pid_dew=$!
+# Wait for each background job individually so no failures get swallowed
+exit_code=0
+for i in "${!pids[@]}"; do
+    if wait "${pids[$i]}"; then
+        echo "[$(date +"%T")] OK    ${names[$i]}"
+    else
+        rc=$?
+        echo "[$(date +"%T")] FAIL  ${names[$i]} (exit ${rc})"
+        exit_code=1
+    fi
+done
 
-run_plot TabPFNGamma_Plots.ipynb TabPFNGamma_Plots SLURMGamma &
-pid_gamma=$!
-
-run_plot TabPFNThickness_Plots.ipynb TabPFNThickness_Plots SLURMTHICKNESS &
-pid_thickness=$!
-
-wait "${pid_bubble}" "${pid_dew}" "${pid_gamma}" "${pid_thickness}"
-
-echo "Plot job finished at: $(date +"%T")"
+echo "Plot job finished at: $(date +"%T") (exit ${exit_code})"
+exit "${exit_code}"

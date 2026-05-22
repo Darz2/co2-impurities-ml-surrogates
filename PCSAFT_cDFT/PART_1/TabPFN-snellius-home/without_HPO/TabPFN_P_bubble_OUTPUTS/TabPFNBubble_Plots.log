@@ -1,0 +1,6 @@
+Input Notebook:  TabPFNBubble_Plots.ipynb
+Output Notebook: TabPFN_P_bubble_OUTPUTS/TabPFNBubble_Plots_output.ipynb
+Passed unknown parameter: PLOT_FOLDER
+Input notebook does not contain a cell with tag 'parameters'
+Executing:   0%|          | 0/10 [00:00<?, ?cell/s]Executing notebook with kernel: python3
+Executing:  10%|█         | 1/10 [00:01<00:10,  1.22s/cell]Executing:  20%|██        | 2/10 [00:02<00:12,  1.53s/cell]Executing:  60%|██████    | 6/10 [00:05<00:03,  1.08cell/s]Executing:  70%|███████   | 7/10 [00:09<00:04,  1.53s/cell]Executing:  80%|████████  | 8/10 [00:12<00:03,  1.79s/cell]Executing:  90%|█████████ | 9/10 [00:15<00:02,  2.15s/cell]Executing: 100%|██████████| 10/10 [00:18<00:00,  1.82s/cell]
