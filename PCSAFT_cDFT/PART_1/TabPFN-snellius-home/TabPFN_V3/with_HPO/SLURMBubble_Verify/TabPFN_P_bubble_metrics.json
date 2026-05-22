@@ -1,0 +1,54 @@
+{
+  "train_r2": 0.9999913551736724,
+  "test_r2": 0.9999920027147277,
+  "train_rmse": 0.06237196509851457,
+  "test_rmse": 0.06035816878561804,
+  "train_mae": 0.030371004844146333,
+  "test_mae": 0.03168236683215128,
+  "val_r2": 0.9999835109309834,
+  "val_rmse": 0.08511604055073643,
+  "val_mae": 0.032971755761834635,
+  "cv_r2_scores": [
+    0.9760852747902181,
+    0.9737997125214203,
+    0.9788343880662113,
+    0.9770719153362558,
+    0.9793637816250153
+  ],
+  "cv_r2_mean": 0.9770310144678241,
+  "cv_r2_std": 0.002001567767161501,
+  "cv_rmse_scores": [
+    3.1143303117752033,
+    3.7833730921513458,
+    3.2184997811897005,
+    3.1373079377337176,
+    2.7464652201795836
+  ],
+  "cv_rmse_mean": 3.1999952686059103,
+  "cv_rmse_std": 0.3339550248452165,
+  "cv_mae_scores": [
+    1.9833990616998922,
+    2.3120183513712065,
+    2.2296024553530875,
+    2.2200738159776408,
+    1.9855570250313124
+  ],
+  "cv_mae_mean": 2.1461301418866277,
+  "cv_mae_std": 0.1358081900438209,
+  "model": "TabPFN_HPO_Verify",
+  "features": [
+    "temperature",
+    "pressure",
+    "z_carbon dioxide",
+    "z_hydrogen",
+    "z_nitrogen",
+    "z_argon",
+    "z_methane",
+    "z_oxygen",
+    "z_carbon monoxide",
+    "z_hydrogen sulfide"
+  ],
+  "target": "P_bubble",
+  "seed": 454015,
+  "hpo_config": "/gpfs/home6/draju/A6/TabPFN_V3/with_HPO/SLURMBubble/TabPFN_P_bubble_decoded_best_config.joblib"
+}

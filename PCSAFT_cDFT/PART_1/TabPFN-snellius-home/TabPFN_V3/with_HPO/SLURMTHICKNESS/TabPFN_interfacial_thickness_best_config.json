@@ -1,0 +1,41 @@
+{
+  "best_score": -0.004042504318576862,
+  "metric": "rmse",
+  "encoded_best_params": {
+    "FINGERPRINT_FEATURE": 1,
+    "MIN_UNIQUE_FOR_NUMERICAL_FEATURES": 0,
+    "OUTLIER_REMOVAL_STD": 0,
+    "POLYNOMIAL_FEATURES": 0,
+    "PREPROCESS_TRANSFORMS": 98,
+    "REGRESSION_Y_PREPROCESS_TRANSFORMS": 2,
+    "average_before_softmax": 0,
+    "model_path": 5,
+    "model_type": 0,
+    "n_estimators": 0,
+    "softmax_temperature": 1
+  },
+  "model_params": {
+    "average_before_softmax": true,
+    "ignore_pretraining_limits": true,
+    "model_path": "/home/draju/.cache/tabpfn/tabpfn-v2.5-regressor-v2.5_small-samples.ckpt",
+    "n_estimators": 4,
+    "softmax_temperature": 0.8,
+    "inference_config": {
+      "FINGERPRINT_FEATURE": false,
+      "MIN_UNIQUE_FOR_NUMERICAL_FEATURES": 1,
+      "OUTLIER_REMOVAL_STD": null,
+      "POLYNOMIAL_FEATURES": "no",
+      "PREPROCESS_TRANSFORMS": [
+        {
+          "append_original": true,
+          "categorical_name": "ordinal_very_common_categories_shuffled",
+          "global_transformer_name": "svd_quarter_components",
+          "name": "none"
+        }
+      ],
+      "REGRESSION_Y_PREPROCESS_TRANSFORMS": [
+        "safepower"
+      ]
+    }
+  }
+}

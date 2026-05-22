@@ -1,0 +1,48 @@
+{
+  "best_score": -0.0474910617559318,
+  "metric": "rmse",
+  "encoded_best_params": {
+    "FINGERPRINT_FEATURE": 0,
+    "MIN_UNIQUE_FOR_NUMERICAL_FEATURES": 1,
+    "OUTLIER_REMOVAL_STD": 2,
+    "POLYNOMIAL_FEATURES": 0,
+    "PREPROCESS_TRANSFORMS": 149,
+    "REGRESSION_Y_PREPROCESS_TRANSFORMS": 1,
+    "average_before_softmax": 0,
+    "model_path": 0,
+    "model_type": 0,
+    "n_estimators": 0,
+    "softmax_temperature": 3
+  },
+  "model_params": {
+    "average_before_softmax": true,
+    "ignore_pretraining_limits": true,
+    "model_path": "/home/draju/.cache/tabpfn/tabpfn-v2.5-regressor-v2.5_default.ckpt",
+    "n_estimators": 4,
+    "softmax_temperature": 0.95,
+    "inference_config": {
+      "FINGERPRINT_FEATURE": true,
+      "MIN_UNIQUE_FOR_NUMERICAL_FEATURES": 5,
+      "OUTLIER_REMOVAL_STD": 12.0,
+      "POLYNOMIAL_FEATURES": "no",
+      "PREPROCESS_TRANSFORMS": [
+        {
+          "append_original": false,
+          "categorical_name": "numeric",
+          "global_transformer_name": "svd_quarter_components",
+          "name": "squashing_scaler_default"
+        },
+        {
+          "append_original": false,
+          "categorical_name": "numeric",
+          "global_transformer_name": "svd_quarter_components",
+          "name": "quantile_uni_coarse"
+        }
+      ],
+      "REGRESSION_Y_PREPROCESS_TRANSFORMS": [
+        null,
+        "safepower"
+      ]
+    }
+  }
+}
