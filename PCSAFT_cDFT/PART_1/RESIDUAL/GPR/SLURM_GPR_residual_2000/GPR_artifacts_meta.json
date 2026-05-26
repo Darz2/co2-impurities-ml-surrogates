@@ -1,0 +1,16 @@
+{
+  "features": [
+    "T",
+    "P",
+    "z_argon",
+    "z_carbon_dioxide",
+    "z_carbon_monoxide",
+    "z_hydrogen",
+    "z_hydrogen_sulfide",
+    "z_methane",
+    "z_nitrogen"
+  ],
+  "target": "residual",
+  "output_folder": "SLURM_GPR_residual_2000",
+  "seed": 222222222
+}

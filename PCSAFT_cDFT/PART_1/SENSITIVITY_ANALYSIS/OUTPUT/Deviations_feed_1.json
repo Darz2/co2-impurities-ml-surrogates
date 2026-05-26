@@ -1,0 +1,35 @@
+[
+    {
+        "label": "cDFT - Parachor",
+        "max_deviation_mNm": 0.1263675249692504,
+        "max_deviation_T_K": 200.42964824120602,
+        "max_deviation_P_bar": 42.78339851654508,
+        "min_deviation_mNm": -0.03944920943155239,
+        "min_deviation_T_K": 208.5929648241206,
+        "min_deviation_P_bar": 4.584137802395361,
+        "mean_deviation_mNm": 0.03967569668738484,
+        "rmse_mNm": 0.052802008718748274
+    },
+    {
+        "label": "cDFT - WSD (corrected)",
+        "max_deviation_mNm": -0.02357915591701243,
+        "max_deviation_T_K": 201.2889447236181,
+        "max_deviation_P_bar": 3.0438450316635173,
+        "min_deviation_mNm": -2.104253008183864,
+        "min_deviation_T_K": 200.42964824120602,
+        "min_deviation_P_bar": 42.78339851654508,
+        "mean_deviation_mNm": -0.556797670831208,
+        "rmse_mNm": 0.7214192685681435
+    },
+    {
+        "label": "cDFT - WSD (no correction)",
+        "max_deviation_mNm": -0.03461430783939079,
+        "max_deviation_T_K": 201.2889447236181,
+        "max_deviation_P_bar": 3.0438450316635173,
+        "min_deviation_mNm": -2.7337790538033317,
+        "min_deviation_T_K": 200.42964824120602,
+        "min_deviation_P_bar": 42.78339851654508,
+        "mean_deviation_mNm": -0.7526395574345205,
+        "rmse_mNm": 0.9554638408559847
+    }
+]
