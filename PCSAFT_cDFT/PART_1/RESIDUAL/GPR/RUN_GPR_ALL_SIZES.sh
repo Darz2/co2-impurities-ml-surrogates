@@ -45,7 +45,7 @@ echo "LaTeX  : $(which latex || echo 'latex not found')"
 
 mkdir -p "${OUTPUT_DIR}"
 
-papermill GPR.ipynb "${OUTPUT_DIR}/GPR_residual_output.ipynb" \
+papermill GPR_calculation.ipynb "${OUTPUT_DIR}/GPR_residual_output.ipynb" \
     -p OUTPUT_FOLDER        "${OUTPUT_DIR}"  \
     -p SEED                 ${SEED}          \
     -p EXPERIMENT_MAX_SAMPLES ${N_SAMPLES}   \
