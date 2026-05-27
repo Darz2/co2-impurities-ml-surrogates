@@ -29,6 +29,7 @@ end
 safepow(x::T, a::T) where {T<:Real} = x > zero(T) ? x^a : T(NaN32)
 safe_div(x, y) = x / (abs(y) > 1e-12 ? y : 1e-12)
 safe_sqrt(x::T) where {T<:Real} = sqrt(abs(x))
+safe_log(x::T)  where {T<:Real} = log(abs(x) + T(1e-12))
 # ============================================================
 # Render options
 # Must match training operators
