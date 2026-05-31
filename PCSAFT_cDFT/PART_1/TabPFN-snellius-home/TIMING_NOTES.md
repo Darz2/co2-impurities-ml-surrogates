@@ -33,23 +33,82 @@ Working notes for the timing/cost analysis (basis for the Overleaf table).
 
 ---
 
-## 2. TabPFN variants micro-benchmark  ⏳ (`benchmark_timing.ipynb`)
+## 2. TabPFN variants micro-benchmark  ✅ (`benchmark_timing.ipynb`)
 
 Re-fits each of the 12 combos (3 variants × 4 targets) and measures: **training wall / GPU / CPU time**, **per-sample inference [ms]**, **used RAM [MB]**, **GPU memory [MB]**, **model size [MB]**. Output → `BENCHMARK_TIMING/benchmark_timing.csv` + `timing_tables.tex`.
 
-> **STATUS: running.** Fill the table below from `benchmark_timing.csv` when it finishes.
-> Est. runtime ~12–24 h (sequential, 1 GPU); dominated by `with_HPO` (100 HPO trials) and `RF+TabPFN`.
+Completed on H100. `n_train = 13 552`, `n_test = 2 904` (all combos). Source: `BENCHMARK_TIMING/benchmark_timing.csv`.
+
+> ⚠️ **RF+TabPFN fits lazily.** `RandomForestTabPFNRegressor.fit()` does almost no work (~0.07 s);
+> the real cost is at **inference (~0.26 s/sample)** — TabPFN is evaluated at each RF leaf per sample.
+> So for RF+TabPFN the **training-time, Used-RAM (0) and GPU-mem rows are NOT meaningful** (they reflect
+> only the trivial fit); read its cost from the **inference** row. (Cross-check: 0.27 s × ~19k train+test+val
+> ≈ 5 000 s ≈ the original RF calc runtimes.)
+>
+> **Why with_HPO training (~9–24 min) ≪ the "hours" seen earlier:** the benchmark times *only*
+> `model.fit()` (the HPO search). The original `*_Calc` whole-notebook papermill durations
+> (3 456–7 428 s) also run, **after** the fit, a 5-fold `cross_validate` (extra TabPFN refits) and
+> **SHAP** value computation (many forward passes — the dominant extra cost), plus plotting/saving.
+> E.g. gamma: 6 949 s whole-notebook − 1 217 s fit ≈ 5 700 s of CV+SHAP. The **fit-only** number is the
+> correct "training time" for the table.
+
+**P_bubble**
 
 | metric | without_HPO | with_HPO | RF + TabPFN |
 |---|--:|--:|--:|
-| Training wall time [s] | _tbd_ | _tbd_ | _tbd_ |
-| Training GPU time [s] | _tbd_ | _tbd_ | _tbd_ |
-| Per-sample inference [ms] | _tbd_ | _tbd_ | _tbd_ |
-| Used RAM [MB] | _tbd_ | _tbd_ | _tbd_ |
-| GPU memory [MB] | _tbd_ | _tbd_ | _tbd_ |
-| Model size [MB] | _tbd_ | _tbd_ | _tbd_ |
+| Training wall time [s] | 1.63 | 860.1 | 0.086 † |
+| Training GPU time [s] | 1.63 | 860.1 | 0.086 † |
+| Per-sample inference [ms] | 1.70 | 0.45 | 270.5 |
+| Used RAM [MB] | 364.6 ‡ | 4 348.5 | 0.0 † |
+| GPU memory [MB] | 51.5 | 4 853.8 | 34.6 † |
+| Model size [MB] | 87.86 | 50.51 | 154.29 |
 
-*(one such table per target: P_bubble, P_dew, gamma, interfacial_thickness)*
+**P_dew**
+
+| metric | without_HPO | with_HPO | RF + TabPFN |
+|---|--:|--:|--:|
+| Training wall time [s] | 1.34 | 1 429.7 | 0.072 † |
+| Training GPU time [s] | 1.34 | 1 429.7 | 0.072 † |
+| Per-sample inference [ms] | 0.73 | 5.44 | 276.9 |
+| Used RAM [MB] | 30.4 | 3 508.7 | 0.0 † |
+| GPU memory [MB] | 86.1 | 4 977.3 | 34.6 † |
+| Model size [MB] | 87.86 | 51.09 | 153.44 |
+
+**gamma**
+
+| metric | without_HPO | with_HPO | RF + TabPFN |
+|---|--:|--:|--:|
+| Training wall time [s] | 1.31 | 1 217.4 | 0.074 † |
+| Training GPU time [s] | 1.31 | 1 217.4 | 0.074 † |
+| Per-sample inference [ms] | 0.73 | 1.74 | 260.2 |
+| Used RAM [MB] | 27.6 | 3 251.9 | 0.0 † |
+| GPU memory [MB] | 86.1 | 4 853.8 | 34.6 † |
+| Model size [MB] | 87.86 | 50.35 | 157.43 |
+
+**interfacial_thickness**
+
+| metric | without_HPO | with_HPO | RF + TabPFN |
+|---|--:|--:|--:|
+| Training wall time [s] | 1.53 | 524.7 | 0.075 † |
+| Training GPU time [s] | 1.53 | 524.7 | 0.075 † |
+| Per-sample inference [ms] | 0.74 | 0.49 | 259.8 |
+| Used RAM [MB] | 32.0 | 2 137.3 | 0.0 † |
+| GPU memory [MB] | 86.1 | 4 896.6 | 34.6 † |
+| Model size [MB] | 87.86 | 52.60 | 154.10 |
+
+† RF+TabPFN fit is lazy → these reflect only the trivial fit, not the real (inference-time) cost.
+‡ first combo executed; includes one-off library/model-load RAM (other without_HPO targets ~28–32 MB).
+
+**Per-variant summary (mean over the 4 targets):**
+
+| | without_HPO | with_HPO | RF + TabPFN |
+|---|--:|--:|--:|
+| Training wall [s] | ~1.5 | ~1 008 (≈17 min) | ~0.08 (lazy) |
+| Inference [ms/sample] | ~0.7–1.7 | ~0.5–5.4 | ~260–277 |
+| GPU memory [MB] | ~50–86 | ~4 900 | (fit only) |
+| Model size [MB] | 87.9 | ~51 | ~155 |
+
+Trade-off in one line: **without_HPO** = cheap to train *and* serve; **with_HPO** = expensive training (HPO) but fast, light-weight serving; **RF+TabPFN** = ~free training but **very slow inference** (~0.27 s/sample) and the largest model.
 
 ---
 
