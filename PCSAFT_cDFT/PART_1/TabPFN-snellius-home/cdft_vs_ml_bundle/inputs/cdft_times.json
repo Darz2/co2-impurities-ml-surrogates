@@ -1,0 +1,23 @@
+{
+  "features": [
+    "temperature",
+    "pressure",
+    "z_carbon dioxide",
+    "z_hydrogen",
+    "z_nitrogen",
+    "z_argon",
+    "z_methane",
+    "z_oxygen",
+    "z_carbon monoxide",
+    "z_hydrogen sulfide"
+  ],
+  "durations": {
+    "0": 7481.110327,
+    "1": 19253.203993,
+    "2": 18286.837019,
+    "3": 65151.925936,
+    "4": 63255.486459
+  },
+  "target": "gamma",
+  "model": "with_HPO TabPFN (gamma)"
+}
