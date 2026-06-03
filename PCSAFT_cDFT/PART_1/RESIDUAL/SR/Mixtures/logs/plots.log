@@ -1,0 +1,24 @@
+
+=== V1 : SR_MIXTURES_OUTPUTS ===
+  gamma        train  RMSE=0.1154  R²=0.9996  n=16130
+  gamma        val    RMSE=0.1163  R²=0.9996  n=3456
+  gamma        test   RMSE=0.1198  R²=0.9996  n=3457
+  delta_gamma  train  RMSE=0.1154  R²=0.9589  n=16130
+  delta_gamma  val    RMSE=0.1163  R²=0.9575  n=3456
+  delta_gamma  test   RMSE=0.1198  R²=0.9576  n=3457
+  eps_base     train  RMSE=0.008799  R²=0.9583  n=16130
+  eps_base     val    RMSE=0.008677  R²=0.9582  n=3456
+  eps_base     test   RMSE=0.008781  R²=0.9564  n=3457
+  saved parity + residual plots in SR_MIXTURES_OUTPUTS
+
+=== V2 : SR_MIXTURES_OUTPUTS_V2 ===
+  gamma        train  RMSE=0.2875  R²=0.9977  n=16130
+  gamma        val    RMSE=0.2824  R²=0.9978  n=3456
+  gamma        test   RMSE=0.2891  R²=0.9976  n=3457
+  delta_gamma  train  RMSE=0.2875  R²=0.7450  n=16130
+  delta_gamma  val    RMSE=0.2824  R²=0.7492  n=3456
+  delta_gamma  test   RMSE=0.2891  R²=0.7531  n=3457
+  eps_base     train  RMSE=0.027  R²=0.6069  n=16130
+  eps_base     val    RMSE=0.02612  R²=0.6207  n=3456
+  eps_base     test   RMSE=0.02599  R²=0.6181  n=3457
+  saved parity + residual plots in SR_MIXTURES_OUTPUTS_V2

@@ -217,11 +217,15 @@ println(hall_of_fame_eps_base)
 dominating_eps_base = calculate_pareto_frontier(hall_of_fame_eps_base)
 best_idx_auto, best_rmse_val_auto = select_best_equation(dominating_eps_base, X_val, y_val, options)
 
-# Auto-pick the equation with lowest validation RMSE. Set `manual_best_idx`
-# to override (look at the Pareto frontier prints above to pick a simpler eq).
-manual_best_idx = nothing
-best_idx = manual_best_idx === nothing ? best_idx_auto : manual_best_idx
-println("\nUsing best_idx = $best_idx  (auto-pick = $best_idx_auto, val RMSE = $best_rmse_val_auto)")
+# Select the equation at a target complexity (robust to frontier reordering).
+# We choose the complexity-12 rational form — the "knee" of the Pareto
+# frontier: ln(Δρ*) / [√Pr + (γ_r − Δρ*)]. Set TARGET_COMPLEXITY = nothing to
+# fall back to the lowest-validation-RMSE auto-pick.
+TARGET_COMPLEXITY = 12
+target_idx = TARGET_COMPLEXITY === nothing ? nothing :
+    findfirst(m -> compute_complexity(m, options) == TARGET_COMPLEXITY, dominating_eps_base)
+best_idx = target_idx === nothing ? best_idx_auto : target_idx
+println("\nUsing best_idx = $best_idx  (auto-pick = $best_idx_auto, val RMSE = $best_rmse_val_auto, target complexity = $TARGET_COMPLEXITY)")
 
 best_eq_eps_base = dominating_eps_base[best_idx]
 best_eq_str = string_tree(best_eq_eps_base.tree, options)
