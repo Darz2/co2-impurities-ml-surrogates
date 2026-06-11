@@ -62,5 +62,9 @@
     "z_nitrogen"
   ],
   "target": "residual",
-  "seed": 4555525
+  "seed": 4555525,
+  "train_wall_s": 880.2161917219928,
+  "train_cpu_s": 83293.16966578699,
+  "train_peak_rss_mb": 1724.4375,
+  "n_cpu": 96
 }

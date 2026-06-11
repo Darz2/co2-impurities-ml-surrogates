@@ -1,0 +1,65 @@
+{
+  "feed_index": 2,
+  "version": "V5_contour_map",
+  "grid": {
+    "ngrid": 500,
+    "lgrid": 100,
+    "T_STEP": 5,
+    "cDFT_NP": 5,
+    "P_TOL": 0.01,
+    "SLURM_RUN": false
+  },
+  "critical_region_enhancements": false,
+  "threads": {
+    "NUM_THREADS_outer_pool": 4,
+    "RAYON_NUM_THREADS": "4",
+    "OMP_NUM_THREADS": "4",
+    "OPENBLAS_NUM_THREADS": "4",
+    "MKL_NUM_THREADS": "4",
+    "SLURM_CPUS_PER_TASK": "16"
+  },
+  "node": "c109",
+  "counts": {
+    "n_points": 100,
+    "n_points_converged": 100,
+    "n_isotherms": 20
+  },
+  "timing_s": {
+    "phase_equilibria": 2.201803748990642,
+    "cdft_sweep": 51.05917308002245,
+    "total_stage": 53.26097682901309
+  },
+  "per_point_ms": {
+    "phase_equilibria_amortized": 22.01803748990642,
+    "cdft_sweep": 510.59173080022447,
+    "total": 532.6097682901309
+  },
+  "per_point_s": {
+    "cdft_sweep": 0.5105917308002245,
+    "total": 0.5326097682901308
+  },
+  "feeds": {
+    "feed_1": {
+      "z": [
+        0.9800000000000004,
+        0.0058268244563953,
+        0.0091038894484014,
+        0.0010974277044856,
+        0.0028797208714395,
+        0.0010921375192779,
+        0.0,
+        0.0
+      ],
+      "active_components": [
+        "carbon dioxide",
+        "hydrogen",
+        "argon",
+        "nitrogen",
+        "methane",
+        "oxygen"
+      ],
+      "TC_K": 301.47,
+      "PC_bar": 79.03
+    }
+  }
+}

@@ -1,0 +1,13 @@
+model,family,mode,time_per_point_ms,speedup_vs_cdft,hardware,source
+cDFT (PC-SAFT),physics,per_point_min,749.1,1.0,Snellius CPU/BLAS,cdft_vs_ml_timing.csv (feed 0)
+cDFT (PC-SAFT),physics,per_point_max,6574.4,1.0,Snellius CPU/BLAS,cdft_vs_ml_timing.csv (feed 3)
+cDFT (PC-SAFT),physics,per_point_mean,3479.3,1.0,Snellius CPU/BLAS,cdft_vs_ml_timing.csv (mean of 5 feeds)
+TabPFN without_HPO,surrogate,inference_isolated,0.7336,4743,H100 GPU,benchmark_timing.csv (gamma row)
+TabPFN with_HPO,surrogate,inference_isolated,1.7355,2005,H100 GPU,benchmark_timing.csv (gamma row)
+TabPFN with_HPO,surrogate,inference_batched_mean,0.4836,7195,H100 GPU,cdft_vs_ml_timing.csv (mean ML_per_point of 5 feeds)
+RF + TabPFN,surrogate,inference_isolated,260.1805,13.4,H100 GPU,benchmark_timing.csv (gamma row)
+GPR (RBF+White),residual,inference_isolated,0.8635,4029,py_A6 CPU (Xeon Silver 4214R),measured RESIDUAL/GPR/GPR_residual_model.joblib
+GPR (RBF+White),residual,inference_batched_mean,0.008578,405587,py_A6 CPU (Xeon Silver 4214R),measured (23043-pt batch, mean only)
+SVGP (Matern-5/2 ARD),residual,inference_isolated,4.9944,697,py_A6 CPU (Xeon Silver 4214R),measured RESIDUAL/SVGP/SVGP_residual_model.pt (2000 inducing)
+SVGP (Matern-5/2 ARD),residual,inference_batched_mean,0.047291,73572,py_A6 CPU (Xeon Silver 4214R),measured (23043-pt batch, mean only, bs=2048)
+SR (closed-form eq),residual,inference_batched_mean,0.00000811,429194320,py_A6 CPU (Xeon Silver 4214R),measured (eps_base equation eval)

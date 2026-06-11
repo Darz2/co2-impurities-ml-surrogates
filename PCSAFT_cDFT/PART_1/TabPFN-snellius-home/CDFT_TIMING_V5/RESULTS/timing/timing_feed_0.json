@@ -1,0 +1,61 @@
+{
+  "feed_index": 0,
+  "version": "V5_contour_map",
+  "grid": {
+    "ngrid": 500,
+    "lgrid": 100,
+    "T_STEP": 5,
+    "cDFT_NP": 5,
+    "P_TOL": 0.01,
+    "SLURM_RUN": false
+  },
+  "critical_region_enhancements": false,
+  "threads": {
+    "NUM_THREADS_outer_pool": 4,
+    "RAYON_NUM_THREADS": "4",
+    "OMP_NUM_THREADS": "4",
+    "OPENBLAS_NUM_THREADS": "4",
+    "MKL_NUM_THREADS": "4",
+    "SLURM_CPUS_PER_TASK": "16"
+  },
+  "node": "c109",
+  "counts": {
+    "n_points": 95,
+    "n_points_converged": 95,
+    "n_isotherms": 19
+  },
+  "timing_s": {
+    "phase_equilibria": 1.5970208380022086,
+    "cdft_sweep": 15.831494268990355,
+    "total_stage": 17.428515106992563
+  },
+  "per_point_ms": {
+    "phase_equilibria_amortized": 16.810745663181144,
+    "cdft_sweep": 166.64730809463532,
+    "total": 183.45805375781646
+  },
+  "per_point_s": {
+    "cdft_sweep": 0.16664730809463532,
+    "total": 0.18345805375781646
+  },
+  "feeds": {
+    "feed_1": {
+      "z": [
+        0.97,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.03,
+        0.0
+      ],
+      "active_components": [
+        "carbon dioxide",
+        "carbon monoxide"
+      ],
+      "TC_K": 300.47,
+      "PC_bar": 77.95
+    }
+  }
+}

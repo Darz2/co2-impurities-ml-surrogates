@@ -1,0 +1,59 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{rehner2023feos}
+\citation{stierle2024gpu}
+\citation{stierle2024gpu}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction and scope}{1}{section.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Accuracy metric.}{1}{section*.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Hardware and environment.}{2}{section*.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Compute hardware used for each part of the benchmark.}}{2}{table.1}\protected@file@percent }
+\newlabel{tab:hw}{{1}{2}{Compute hardware used for each part of the benchmark}{table.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Full data-driven surrogates: TabPFN across all targets}{2}{section.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Accuracy}{2}{subsection.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Cost: training, inference, memory, model size}{2}{subsection.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}cDFT vs.\ the full data-driven surrogate on a $\gamma $ map}{2}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Residual-correction models for $\gamma $}{2}{section.4}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Accuracy of the TabPFN variants on the held-out test and validation sets, and 5-fold cross-validated RMSE. RMSE units: pressures in bar, $\gamma $ in mN\,m$^{-1}$, interfacial thickness in its native unit. RMSE$_\mathrm  {CV}$ is the mean~$\pm $~standard deviation over the 5 folds (same units). Bold marks the lower CV RMSE in each target group.}}{3}{table.2}\protected@file@percent }
+\newlabel{tab:tabpfn-acc}{{2}{3}{Accuracy of the TabPFN variants on the held-out test and validation sets, and 5-fold cross-validated RMSE. RMSE units: pressures in bar, $\gamma $ in \gmm , interfacial thickness in its native unit. RMSE$_\mathrm {CV}$ is the mean~$\pm $~standard deviation over the 5 folds (same units). Bold marks the lower CV RMSE in each target group}{table.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces TabPFN variant micro-benchmark (mean over the four targets; $n_\mathrm  {train}=13\,552$, $n_\mathrm  {test}=2\,904$; H100 GPU).}}{3}{table.3}\protected@file@percent }
+\newlabel{tab:tabpfn-cost}{{3}{3}{TabPFN variant micro-benchmark (mean over the four targets; $n_\mathrm {train}=13\,552$, $n_\mathrm {test}=2\,904$; H100 GPU)}{table.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Cross-validated RMSE for $\gamma $}{3}{section.5}\protected@file@percent }
+\newlabel{sec:cv}{{5}{3}{Cross-validated RMSE for $\gamma $}{section.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Per-state-point timing: the unifying comparison}{3}{section.6}\protected@file@percent }
+\citation{rehner2023feos}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces cDFT (PC-SAFT, CPU/BLAS) vs.\ \texttt  {with\_HPO} TabPFN (H100, inference only) on the same per-feed $\gamma $ map. Speed-up grows with feed because cDFT cost varies strongly while ML inference is nearly constant.}}{4}{table.4}\protected@file@percent }
+\newlabel{tab:cdft-vs-ml}{{4}{4}{cDFT (PC-SAFT, CPU/BLAS) vs.\ \texttt {with\_HPO} TabPFN (H100, inference only) on the same per-feed $\gamma $ map. Speed-up grows with feed because cDFT cost varies strongly while ML inference is nearly constant}{table.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Residual-correction models for $\gamma $. RMSE$_\mathrm  {CV}$ is the 5-fold cross-validated mean~$\pm $~std. GPR/SVGP RMSE is on the residual target (mN\,m$^{-1}$); SR RMSE is on the reconstructed $\gamma _\mathrm  {cDFT}$ scale (mN\,m$^{-1}$). $R^2_\mathrm  {CV}$ is on the same target as the RMSE.}}{4}{table.5}\protected@file@percent }
+\newlabel{tab:residual}{{5}{4}{Residual-correction models for $\gamma $. RMSE$_\mathrm {CV}$ is the 5-fold cross-validated mean~$\pm $~std. GPR/SVGP RMSE is on the residual target (\gmm ); SR RMSE is on the reconstructed $\gamma _\mathrm {cDFT}$ scale (\gmm ). $R^2_\mathrm {CV}$ is on the same target as the RMSE}{table.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Training, inference, memory and model size}{4}{subsection.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Comparison with the literature}{4}{section.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Where the per-point seconds actually go.}{4}{section*.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{\texttt  {FeOs} reference (Rehner et~al.\ 2023).}{4}{section*.4}\protected@file@percent }
+\citation{stierle2024gpu}
+\citation{rehner2023feos}
+\citation{rehner2023feos}
+\citation{stierle2024gpu}
+\citation{stierle2024gpu}
+\citation{stierle2024gpu}
+\citation{stierle2024gpu}
+\citation{stierle2024gpu}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces 5-fold cross-validated RMSE for $\gamma $, in mN\,m$^{-1}$\ (mean\,$\pm $\,std). TabPFN values are on the direct-$\gamma $ target; GPR/SVGP on the residual target; SR on the reconstructed $\gamma _\mathrm  {cDFT}$ scale. The scales differ (see text); bold marks the best full data-driven model.}}{5}{table.6}\protected@file@percent }
+\newlabel{tab:gamma-comb}{{6}{5}{5-fold cross-validated RMSE for $\gamma $, in \gmm \ (mean\,$\pm $\,std). TabPFN values are on the direct-$\gamma $ target; GPR/SVGP on the residual target; SR on the reconstructed $\gamma _\mathrm {cDFT}$ scale. The scales differ (see text); bold marks the best full data-driven model}{table.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Time per state point for $\gamma $ and speed-up vs.\ cDFT (mean cDFT cost $3.48$\,s/point). cDFT on \texttt  {c109} (AMD EPYC~9754); TabPFN on the NVIDIA H100; residual models on the local Intel Xeon Silver~4214R CPU. Cross-family numbers are therefore order-of-magnitude, not same-rig.}}{5}{table.7}\protected@file@percent }
+\newlabel{tab:perpoint}{{7}{5}{Time per state point for $\gamma $ and speed-up vs.\ cDFT (mean cDFT cost $3.48$\,s/point). cDFT on \texttt {c109} (AMD EPYC~9754); TabPFN on the NVIDIA H100; residual models on the local Intel Xeon Silver~4214R CPU. Cross-family numbers are therefore order-of-magnitude, not same-rig}{table.7}{}}
+\@writefile{toc}{\contentsline {paragraph}{GPU-accelerated 3D cDFT (Stierle et~al.\ 2024).}{5}{section*.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Take-away.}{5}{section*.6}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Resource comparison across the three approaches for $\gamma $. The full data-driven column lists \texttt  {without\_HPO}\,/\,\texttt  {with\_HPO} TabPFN (H100); the hybrid column is WSD\,+\,SVGP residual (1500 inducing points). cDFT has no training phase or stored model (``---''); \texttt  {n/r}~=~not separately recorded. $^a$\,cDFT per-point solve, default grid $n_\mathrm  {grid}=500$ on \texttt  {c109}, range over the 2--8-component feeds; inherently one solve per point (no batching). $^b$\,isolated single-sample on the local Xeon Silver~4214R; batched deployment $\approx $0.025--0.047\,ms/sample. $^c$\,peak resident set size (Slurm \texttt  {MaxRSS}) of the cDFT job. SVGP inference was measured isolated on the local Xeon. TabPFN runs on the H100, so its constraining memory is VRAM ($\sim $4.9\,GB for \texttt  {with\_HPO}); cDFT and SVGP are CPU-only and use no VRAM. $^e$\,SVGP training timing/RAM as recorded by the instrumented run on \texttt  {c109} (96 cores): wall 880.2\,s ($\approx $14.7\,min), aggregate CPU time 83\,293\,s across the cores, and 1724\,MB peak resident set during training. $^d$\,5-fold CV mean (see Table~\ref {tab:gamma-comb} for $\pm $std); cDFT is the ground-truth reference (RMSE~$\equiv $~0); SVGP RMSE is on the smaller-magnitude residual target, not directly comparable to the direct-$\gamma $ TabPFN values.}}{6}{table.8}\protected@file@percent }
+\newlabel{tab:resource}{{8}{6}{Resource comparison across the three approaches for $\gamma $. The full data-driven column lists \texttt {without\_HPO}\,/\,\texttt {with\_HPO} TabPFN (H100); the hybrid column is WSD\,+\,SVGP residual (1500 inducing points). cDFT has no training phase or stored model (``---''); \texttt {n/r}~=~not separately recorded. $^a$\,cDFT per-point solve, default grid $n_\mathrm {grid}=500$ on \texttt {c109}, range over the 2--8-component feeds; inherently one solve per point (no batching). $^b$\,isolated single-sample on the local Xeon Silver~4214R; batched deployment $\approx $0.025--0.047\,ms/sample. $^c$\,peak resident set size (Slurm \texttt {MaxRSS}) of the cDFT job. SVGP inference was measured isolated on the local Xeon. TabPFN runs on the H100, so its constraining memory is VRAM ($\sim $4.9\,GB for \texttt {with\_HPO}); cDFT and SVGP are CPU-only and use no VRAM. $^e$\,SVGP training timing/RAM as recorded by the instrumented run on \texttt {c109} (96 cores): wall 880.2\,s ($\approx $14.7\,min), aggregate CPU time 83\,293\,s across the cores, and 1724\,MB peak resident set during training. $^d$\,5-fold CV mean (see Table~\ref {tab:gamma-comb} for $\pm $std); cDFT is the ground-truth reference (RMSE~$\equiv $~0); SVGP RMSE is on the smaller-magnitude residual target, not directly comparable to the direct-$\gamma $ TabPFN values}{table.8}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Re-timed cDFT $\gamma $ map on \texttt  {c109} (2$\times $ AMD EPYC~9754; default grid $n_\mathrm  {grid}=500$, hybrid $4\times 4$ threading): phase-equilibria stage vs.\ cDFT interfacial sweep, per feed. ``Total/pt'' is the combined stage time per $(T,P)$ point.}}{6}{table.9}\protected@file@percent }
+\newlabel{tab:stage}{{9}{6}{Re-timed cDFT $\gamma $ map on \texttt {c109} (2$\times $ AMD EPYC~9754; default grid $n_\mathrm {grid}=500$, hybrid $4\times 4$ threading): phase-equilibria stage vs.\ cDFT interfacial sweep, per feed. ``Total/pt'' is the combined stage time per $(T,P)$ point}{table.9}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Conclusions}{6}{section.8}\protected@file@percent }
+\citation{stierle2024gpu}
+\citation{rehner2023feos}
+\bibcite{rehner2023feos}{1}
+\bibcite{stierle2024gpu}{2}
+\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces Literature context for the cost of a cDFT evaluation vs.\ our ML surrogate. Tasks differ (1D interface vs.\ 3D adsorption profile), so this is a qualitative placement, not a controlled comparison.}}{7}{table.10}\protected@file@percent }
+\newlabel{tab:lit}{{10}{7}{Literature context for the cost of a cDFT evaluation vs.\ our ML surrogate. Tasks differ (1D interface vs.\ 3D adsorption profile), so this is a qualitative placement, not a controlled comparison}{table.10}{}}
+\gdef \@abspage@last{7}

@@ -1,0 +1,66 @@
+{
+  "feed_index": 3,
+  "version": "V5_contour_map",
+  "grid": {
+    "ngrid": 500,
+    "lgrid": 100,
+    "T_STEP": 5,
+    "cDFT_NP": 5,
+    "P_TOL": 0.01,
+    "SLURM_RUN": false
+  },
+  "critical_region_enhancements": false,
+  "threads": {
+    "NUM_THREADS_outer_pool": 4,
+    "RAYON_NUM_THREADS": "4",
+    "OMP_NUM_THREADS": "4",
+    "OPENBLAS_NUM_THREADS": "4",
+    "MKL_NUM_THREADS": "4",
+    "SLURM_CPUS_PER_TASK": "16"
+  },
+  "node": "c109",
+  "counts": {
+    "n_points": 105,
+    "n_points_converged": 102,
+    "n_isotherms": 21
+  },
+  "timing_s": {
+    "phase_equilibria": 3.5106213690014556,
+    "cdft_sweep": 181.10480482599814,
+    "total_stage": 184.6154261949996
+  },
+  "per_point_ms": {
+    "phase_equilibria_amortized": 33.43448922858529,
+    "cdft_sweep": 1724.807665009506,
+    "total": 1758.2421542380914
+  },
+  "per_point_s": {
+    "cdft_sweep": 1.724807665009506,
+    "total": 1.7582421542380915
+  },
+  "feeds": {
+    "feed_1": {
+      "z": [
+        0.96,
+        0.02,
+        0.0,
+        0.008,
+        0.004,
+        0.004,
+        0.002,
+        0.002
+      ],
+      "active_components": [
+        "carbon dioxide",
+        "hydrogen",
+        "nitrogen",
+        "methane",
+        "oxygen",
+        "carbon monoxide",
+        "hydrogen sulfide"
+      ],
+      "TC_K": 300.66,
+      "PC_bar": 84.24
+    }
+  }
+}

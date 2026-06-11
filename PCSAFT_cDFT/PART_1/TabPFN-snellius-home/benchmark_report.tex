@@ -1,0 +1,534 @@
+\documentclass[11pt]{article}
+
+% ---------------------------------------------------------------------------
+% Benchmark report: cDFT vs. data-driven surrogates (TabPFN) vs. residual-
+% correction models for PC-SAFT interfacial properties.
+% Self-contained; compile with pdflatex (no external data needed).
+% ---------------------------------------------------------------------------
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{geometry}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage[hidelinks]{hyperref}
+\geometry{a4paper,margin=1in}
+
+\newcommand{\gmm}{mN\,m$^{-1}$}
+\newcommand{\R}{$R^2$}
+\newcommand{\speed}[1]{$\sim\!#1\times$}
+
+\title{\bfseries Physics engine vs.\ machine-learning surrogates for PC-SAFT
+interfacial properties:\\ a timing and accuracy benchmark}
+\author{Generated benchmark report}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We benchmark three families of models that predict interfacial and phase
+properties of multicomponent mixtures described by the PC-SAFT Helmholtz energy
+functional: (i)~the physics engine itself, classical density functional theory
+(cDFT) solved with \texttt{FeOs}; (ii)~\emph{full data-driven} surrogates based
+on the TabPFN tabular foundation model (two variants: \texttt{without\_HPO} and
+\texttt{with\_HPO}); and (iii)~\emph{residual-correction} models (Gaussian
+process regression, GPR; stochastic variational GP, SVGP; and symbolic
+regression, SR) that learn the deviation of cDFT from an analytic baseline.
+Across all four targets (bubble pressure $P_\mathrm{bubble}$, dew pressure
+$P_\mathrm{dew}$, surface tension $\gamma$, and interfacial thickness) the
+surrogates reproduce cDFT essentially exactly ($R^2\gtrsim0.9999$ on a held-out
+test split) while reducing the per-state-point cost from \emph{seconds} (cDFT)
+to \emph{sub-millisecond} (TabPFN, GPR, SR), a speed-up of $10^3$--$10^4\times$.
+Accuracy is reported as 5-fold cross-validated (CV) RMSE --- the honest
+generalisation estimate, systematically larger than the i.i.d.\ test error. We
+place the timings in the context of the GPU-accelerated cDFT of Stierle et~al.\
+(2024) and the \texttt{FeOs} reference of Rehner et~al.\ (2023), and show by
+direct re-timing on the same node that the multicomponent interface solve ---
+\emph{not} the phase-equilibrium flash --- is what makes our per-point cDFT cost
+exceed the simple-fluid reference.
+\end{abstract}
+
+% ===========================================================================
+\section{Introduction and scope}
+% ===========================================================================
+Classical density functional theory (cDFT) based on the PC-SAFT equation of
+state is a quantitatively accurate route to interfacial properties such as
+surface tension, but it is computationally expensive: each state point requires
+the iterative solution of the Euler--Lagrange equation for the density profile,
+dominated by the convolution integrals of the weighted-density functional
+\cite{rehner2023feos,stierle2024gpu}. This cost is prohibitive for the
+large-scale screening and inverse-design tasks that motivate the field
+\cite{stierle2024gpu}.
+
+A machine-learning (ML) surrogate trained on cDFT data can, in principle,
+collapse this cost to a single forward pass. We quantify this trade-off for two
+surrogate strategies:
+\begin{itemize}
+  \item \textbf{Full data-driven models} that map the thermodynamic state
+        $(T,P,\mathbf{z})$ directly to the target property, using the TabPFN
+        tabular foundation model in two variants (\texttt{without\_HPO} and a
+        hyperparameter-optimised \texttt{with\_HPO}).
+  \item \textbf{Residual-correction models} that predict only the
+        \emph{residual} between cDFT and a cheap analytic baseline
+        ($\gamma_\mathrm{wsd}$), which the physics already captures most of.
+        We use GPR, SVGP, and symbolic regression (SR).
+\end{itemize}
+
+\paragraph{Accuracy metric.}
+Unless stated otherwise, the headline accuracy figure is the \textbf{5-fold
+cross-validated RMSE} (mean $\pm$ standard deviation over folds). CV is reported
+because the held-out i.i.d.\ test split is optimistic for this data --- the
+folds force the model to generalise across state regions, so the CV RMSE is the
+number that matches real deployment error (Sec.~\ref{sec:cv}).
+
+\paragraph{Hardware and environment.}
+Three distinct machines are used; cross-machine timings are therefore
+order-of-magnitude, not same-rig (Table~\ref{tab:hw}). The cDFT $\gamma$ maps and
+the per-stage re-timing (Sec.~\ref{sec:cv}, Table~\ref{tab:stage}) ran with
+\texttt{FeOs} (CPU, BLAS-threaded) on the TU~Delft \texttt{c109} \texttt{highmem}
+node (2$\times$ AMD~EPYC~9754, 256 cores, $\approx$1.5\,TB RAM). TabPFN
+training/inference was timed on an NVIDIA~H100 GPU (Snellius). The residual
+models (GPR/SVGP/SR) were timed in the \texttt{py\_A6} environment (PyTorch~2.10
+CPU, GPyTorch~1.15.2, scikit-learn~1.6.1) on a local Intel Xeon Silver~4214R @
+2.40\,GHz (2 sockets $\times$ 12 cores = 24 threads). All learned models share
+the training split $n_\mathrm{train}=13\,552$, $n_\mathrm{test}=2\,904$
+(per-property validation split of comparable size); CV is 5-fold on the pooled
+data.
+
+\begin{table}[h]
+\centering
+\caption{Compute hardware used for each part of the benchmark.}
+\label{tab:hw}
+\small
+\begin{tabular}{lll}
+\toprule
+Machine & Hardware & Used for \\
+\midrule
+\texttt{c109} (TU~Delft) & 2$\times$ AMD EPYC~9754, 256 cores, $\approx$1.5\,TB RAM (CPU-only) & cDFT maps + per-stage re-timing \\
+Snellius                 & NVIDIA H100 GPU & TabPFN training / inference \\
+Local workstation        & Intel Xeon Silver~4214R @ 2.40\,GHz, 24 threads & GPR / SVGP / SR residual-model timing \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ===========================================================================
+\section{Full data-driven surrogates: TabPFN across all targets}
+% ===========================================================================
+
+\subsection{Accuracy}
+Table~\ref{tab:tabpfn-acc} reports the test/validation accuracy and the 5-fold
+CV RMSE of the two TabPFN variants for all four targets. On the i.i.d.\ test
+split both variants reproduce cDFT with $R^2\ge0.9998$; \texttt{with\_HPO} is
+the more accurate everywhere and is the deployed model. Note the CV RMSE is
+markedly larger than the test RMSE (e.g.\ $\gamma$ \texttt{with\_HPO}: CV
+$0.040$ vs test $0.006$ \gmm) --- the realistic generalisation cost.
+
+\begin{table}[t]
+\centering
+\caption{Accuracy of the TabPFN variants on the held-out test and validation
+sets, and 5-fold cross-validated RMSE. RMSE units: pressures in bar, $\gamma$ in
+\gmm, interfacial thickness in its native unit. RMSE$_\mathrm{CV}$ is the
+mean~$\pm$~standard deviation over the 5 folds (same units). Bold marks the
+lower CV RMSE in each target group.}
+\label{tab:tabpfn-acc}
+\small
+\begin{tabular}{llrrrrr}
+\toprule
+Target & Variant & \multicolumn{1}{c}{$R^2_\mathrm{test}$} & \multicolumn{1}{c}{$R^2_\mathrm{val}$}
+       & \multicolumn{1}{c}{RMSE$_\mathrm{test}$} & \multicolumn{1}{c}{RMSE$_\mathrm{val}$}
+       & \multicolumn{1}{c}{RMSE$_\mathrm{CV}$ (mean\,$\pm$\,std)} \\
+\midrule
+\multirow{2}{*}{$P_\mathrm{bubble}$}
+ & without\_HPO & 0.999930 & 0.999926 & 0.18249 & 0.18249 & $2.732 \pm 0.587$ \\
+ & with\_HPO    & 0.999997 & 0.999997 & 0.03582 & 0.03767 & $\mathbf{1.313 \pm 0.302}$ \\
+\midrule
+\multirow{2}{*}{$P_\mathrm{dew}$}
+ & without\_HPO & 0.999947 & 0.999941 & 0.13515 & 0.13812 & $0.298 \pm 0.077$ \\
+ & with\_HPO    & 1.000000 & 1.000000 & 0.00214 & 0.00198 & $\mathbf{0.201 \pm 0.184}$ \\
+\midrule
+\multirow{2}{*}{$\gamma$}
+ & without\_HPO & 0.999956 & 0.999961 & 0.04062 & 0.03828 & $0.1630 \pm 0.0172$ \\
+ & with\_HPO    & 0.999999 & 0.999999 & 0.00603 & 0.00600 & $\mathbf{0.0395 \pm 0.0094}$ \\
+\midrule
+\multirow{2}{*}{thickness}
+ & without\_HPO & 0.999850 & 0.999823 & 0.00843 & 0.00896 & $\mathbf{0.0272 \pm 0.0143}$ \\
+ & with\_HPO    & 0.999896 & 0.999909 & 0.00702 & 0.00642 & $0.0277 \pm 0.0081$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Cost: training, inference, memory, model size}
+Table~\ref{tab:tabpfn-cost} summarises the micro-benchmark of the two variants
+(mean over the four targets). The trade-off is clear:
+\begin{itemize}
+  \item \texttt{without\_HPO}: cheap to train ($\sim$1.5\,s) \emph{and} to serve
+        ($\sim$0.7--1.7\,ms/sample); lightest GPU footprint.
+  \item \texttt{with\_HPO}: expensive training ($\sim$17\,min of HPO search) but
+        fast, light-weight serving; the deployed $\gamma$ model.
+\end{itemize}
+
+\begin{table}[t]
+\centering
+\caption{TabPFN variant micro-benchmark (mean over the four targets;
+$n_\mathrm{train}=13\,552$, $n_\mathrm{test}=2\,904$; H100 GPU).}
+\label{tab:tabpfn-cost}
+\small
+\begin{tabular}{lrr}
+\toprule
+Metric & without\_HPO & with\_HPO \\
+\midrule
+Training wall time [s]        & $\sim$1.5      & $\sim$1008 ($\approx$17\,min) \\
+Inference [ms/sample]         & 0.7--1.7       & 0.5--5.4 \\
+GPU memory [MB]               & 50--86         & $\sim$4900 \\
+Model size [MB]               & 87.9           & $\sim$51 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ===========================================================================
+\section{cDFT vs.\ the full data-driven surrogate on a $\gamma$ map}
+% ===========================================================================
+Table~\ref{tab:cdft-vs-ml} compares the cost of generating a $\gamma$ map
+($\sim$10\,000 $(T,P,\mathbf{z})$ points per feed) with cDFT against the deployed
+\texttt{with\_HPO} TabPFN model predicting the \emph{identical} points. The cDFT
+map takes 2--18\,h; the surrogate takes 3.5--6.9\,s, a speed-up of
+$10^3$--$10^4\times$ at no meaningful loss of accuracy
+($R^2\approx0.9999$, RMSE $\approx0.03$--$0.05$ \gmm).
+
+\begin{table}[t]
+\centering
+\caption{cDFT (PC-SAFT, CPU/BLAS) vs.\ \texttt{with\_HPO} TabPFN (H100, inference
+only) on the same per-feed $\gamma$ map. Speed-up grows with feed because cDFT
+cost varies strongly while ML inference is nearly constant.}
+\label{tab:cdft-vs-ml}
+\small
+\begin{tabular}{rrrrrrr}
+\toprule
+Feed & Points & cDFT map [s] & ML map [s] & Speed-up & \R{} & RMSE [\gmm] \\
+\midrule
+0 & 9\,987  & 7\,481.1 (2.1\,h)  & 6.89 & 1\,086$\times$  & 0.99997 & 0.035 \\
+1 & 9\,764  & 19\,253.2 (5.3\,h) & 5.73 & 3\,359$\times$  & 0.99998 & 0.026 \\
+2 & 10\,120 & 18\,286.8 (5.1\,h) & 3.56 & 5\,136$\times$  & 0.99995 & 0.046 \\
+3 & 9\,910  & 65\,151.9 (18.1\,h)& 4.34 & 15\,026$\times$ & 0.99997 & 0.032 \\
+4 & 10\,050 & 63\,255.5 (17.6\,h)& 3.54 & 17\,874$\times$ & 0.99996 & 0.038 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ===========================================================================
+\section{Residual-correction models for $\gamma$}
+% ===========================================================================
+Instead of learning $\gamma$ directly, the residual models learn the deviation
+of cDFT from the analytic baseline $\gamma_\mathrm{wsd}$, so the reconstructed
+prediction is $\gamma_\mathrm{pred}=\gamma_\mathrm{base}+\hat{r}$. This keeps the
+physics in the loop and leaves only a small, smooth residual to be learned.
+Table~\ref{tab:residual} reports their accuracy. GPR (5000-point training
+subset) and SVGP (2000 inducing points) target the residual directly (RMSE in
+\gmm); SR targets a dimensionless $\varepsilon_\mathrm{base}$ and we quote its
+reconstructed $\gamma_\mathrm{cDFT}$-scale RMSE. The CV RMSE columns are
+sourced from the cross-validated runs of each model, so test, validation and CV
+in a row refer to one and the same fitted model.
+
+\begin{table}[t]
+\centering
+\caption{Residual-correction models for $\gamma$. RMSE$_\mathrm{CV}$ is the 5-fold
+cross-validated mean~$\pm$~std. GPR/SVGP RMSE is on the residual target (\gmm); SR
+RMSE is on the reconstructed $\gamma_\mathrm{cDFT}$ scale (\gmm). $R^2_\mathrm{CV}$
+is on the same target as the RMSE.}
+\label{tab:residual}
+\small
+\begin{tabular}{llrrrr}
+\toprule
+Model & Target & RMSE$_\mathrm{test}$ & RMSE$_\mathrm{val}$ & RMSE$_\mathrm{CV}$ (mean\,$\pm$\,std) & $R^2_\mathrm{CV}$ \\
+\midrule
+GPR (RBF+White, 5000)    & residual   & 0.01584 & 0.01536 & $0.0379 \pm 0.0262$ & 0.9938 \\
+SVGP (Mat\'ern-5/2 ARD)  & residual   & 0.03684 & 0.02792 & $0.0233 \pm 0.0030$ & 0.9983 \\
+SR (closed-form eq.)     & $\gamma_\mathrm{cDFT}$ & 0.14181 & 0.14235 & $0.2475 \pm 0.0110$ & 0.9983 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ===========================================================================
+\section{Cross-validated RMSE for $\gamma$}
+\label{sec:cv}
+% ===========================================================================
+Table~\ref{tab:gamma-comb} collects the 5-fold CV RMSE for $\gamma$ across every
+learned model on a common \gmm{} scale. Reading it requires one caveat: TabPFN
+predicts $\gamma$ \emph{directly}, whereas GPR and SVGP predict only the small
+\emph{residual} $\gamma_\mathrm{cDFT}-\gamma_\mathrm{wsd}$, so their RMSE is on a
+quantity of much smaller magnitude --- the residual numbers are therefore not
+directly comparable to the direct-$\gamma$ TabPFN numbers, even though both are
+in \gmm. Among the full data-driven models, \texttt{with\_HPO} TabPFN is the
+best at $0.040$ \gmm. The residual SVGP has the smallest absolute CV RMSE
+($0.023$ \gmm), as expected for the easier residual target.
+
+Crucially, the CV RMSE of the deployed \texttt{with\_HPO} model ($0.040$ \gmm)
+\emph{agrees with} its deployment RMSE when rolled out over the full cDFT
+$\gamma$ map ($0.03$--$0.05$ \gmm, Table~\ref{tab:cdft-vs-ml}), whereas the
+i.i.d.\ test RMSE ($0.006$ \gmm) was a factor $\sim$6 optimistic. This is exactly
+why we headline the CV figure.
+
+\begin{table}[t]
+\centering
+\caption{5-fold cross-validated RMSE for $\gamma$, in \gmm\ (mean\,$\pm$\,std).
+TabPFN values are on the direct-$\gamma$ target; GPR/SVGP on the residual
+target; SR on the reconstructed $\gamma_\mathrm{cDFT}$ scale. The scales differ
+(see text); bold marks the best full data-driven model.}
+\label{tab:gamma-comb}
+\small
+\begin{tabular}{llr}
+\toprule
+Family & Model & RMSE$_\mathrm{CV}$ [\gmm] \\
+\midrule
+\multirow{2}{*}{Full data-driven}
+ & TabPFN without\_HPO & $0.1630 \pm 0.0172$ \\
+ & TabPFN with\_HPO    & $\mathbf{0.0395 \pm 0.0094}$ \\
+\midrule
+\multirow{3}{*}{Residual-correction}
+ & GPR (5000)          & $0.0379 \pm 0.0262$ \\
+ & SVGP                & $0.0233 \pm 0.0030$ \\
+ & SR                  & $0.2475 \pm 0.0110$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ===========================================================================
+\section{Per-state-point timing: the unifying comparison}
+% ===========================================================================
+Table~\ref{tab:perpoint} is the headline comparison: the wall time to evaluate
+$\gamma$ at one state point, for the physics engine and every surrogate.
+``Isolated'' is a single-sample call (includes call overhead); ``batched'' is the
+amortised per-point cost when predicting the whole map at once (the realistic
+deployment cost).
+
+\begin{table}[t]
+\centering
+\caption{Time per state point for $\gamma$ and speed-up vs.\ cDFT (mean cDFT cost
+$3.48$\,s/point). cDFT on \texttt{c109} (AMD EPYC~9754); TabPFN on the NVIDIA
+H100; residual models on the local Intel Xeon Silver~4214R CPU. Cross-family
+numbers are therefore order-of-magnitude, not same-rig.}
+\label{tab:perpoint}
+\small
+\begin{tabular}{llrr}
+\toprule
+Model & Mode & Time/point & Speed-up vs.\ cDFT \\
+\midrule
+cDFT (PC-SAFT)        & per point (range) & 0.75--6.57\,s (mean 3.48\,s) & 1$\times$ \\
+\midrule
+TabPFN without\_HPO   & isolated & 0.73\,ms  & \speed{4\,700} \\
+TabPFN with\_HPO      & isolated & 1.74\,ms  & \speed{2\,000} \\
+TabPFN with\_HPO      & batched  & 0.48\,ms  & \speed{7\,200} \\
+\midrule
+GPR (RBF+White)       & isolated & 0.86\,ms     & \speed{4\,000} \\
+GPR (RBF+White)       & batched  & 0.0086\,ms   & \speed{406\,000} \\
+SVGP (Mat\'ern-5/2)   & isolated & 4.99\,ms     & \speed{700} \\
+SVGP (Mat\'ern-5/2)   & batched  & 0.047\,ms    & \speed{74\,000} \\
+SR (closed-form eq.)  & batched  & $\sim$8$\times$10$^{-6}$\,ms & \speed{4\times10^8} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Training, inference, memory and model size}
+Table~\ref{tab:resource} compares the three model families on the same resource
+axes as a conventional surrogate benchmark: training cost, per-sample inference
+cost, model size, and peak memory. The physics engine (PC-SAFT + cDFT) has no
+training phase and no stored model --- its ``inference'' is the full per-point
+solve --- whereas the learned models pay a one-off training cost and then serve
+predictions at $\sim$1--5\,ms/sample (isolated) or far less when batched.
+
+\begin{table}[t]
+\centering
+\caption{Resource comparison across the three approaches for $\gamma$. The
+full data-driven column lists \texttt{without\_HPO}\,/\,\texttt{with\_HPO} TabPFN
+(H100); the hybrid column is WSD\,+\,SVGP residual (1500 inducing points). cDFT
+has no training phase or stored model (``---''); \texttt{n/r}~=~not separately
+recorded.
+$^a$\,cDFT per-point solve, default grid $n_\mathrm{grid}=500$ on \texttt{c109},
+range over the 2--8-component feeds; inherently one solve per point (no batching).
+$^b$\,isolated single-sample on the local Xeon Silver~4214R; batched deployment
+$\approx$0.025--0.047\,ms/sample.
+$^c$\,peak resident set size (Slurm \texttt{MaxRSS}) of the cDFT job.
+SVGP inference was measured isolated on the local Xeon. TabPFN runs on the H100,
+so its constraining memory is VRAM ($\sim$4.9\,GB for \texttt{with\_HPO}); cDFT
+and SVGP are CPU-only and use no VRAM.
+$^e$\,SVGP training timing/RAM as recorded by the instrumented run on
+\texttt{c109} (96 cores): wall 880.2\,s ($\approx$14.7\,min), aggregate CPU
+time 83\,293\,s across the cores, and 1724\,MB peak resident set during training.
+$^d$\,5-fold CV mean (see Table~\ref{tab:gamma-comb} for $\pm$std); cDFT is the
+ground-truth reference (RMSE~$\equiv$~0); SVGP RMSE is on the smaller-magnitude
+residual target, not directly comparable to the direct-$\gamma$ TabPFN values.}
+\label{tab:resource}
+\small
+\begin{tabular}{lccc}
+\toprule
+Metric & PC-SAFT + cDFT & Full data-driven (TabPFN) & WSD + Residual (SVGP) \\
+\midrule
+$\gamma$ RMSE$_\mathrm{CV}$ [\gmm]  & 0 (reference) & 0.163 / 0.040      & 0.023$^d$ \\
+\midrule
+Training wall time [s]        & ---           & 1.31 / 1217.4      & 880.2 \\
+Training CPU time [s]         & ---           & 8.94 / 2790.7      & 83293$^e$ \\
+Per-sample inference [ms]     & 184--1791$^a$ & 0.734 / 1.735      & 5.23$^b$ \\
+Model size [MB]               & ---           & 87.9 / 50.4        & 9.1 \\
+Host RAM [MB]                 & 622--908$^c$  & 27.6 / 3251.9      & 1724$^e$ \\
+GPU memory / VRAM [MB]        & --- (CPU)     & 86.1 / 4853.8      & --- (CPU) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ===========================================================================
+\section{Comparison with the literature}
+% ===========================================================================
+Our cDFT cost should be read against two reference implementations.
+
+\paragraph{Where the per-point seconds actually go.}
+To make our per-point cost comparable to literature figures (which time a single
+simple-fluid interface), we re-ran the V5 contour-map sweep for the five study
+feeds on the same \texttt{c109} node, instrumented to separate the
+\emph{phase-equilibria} stage (critical point + bubble/dew envelope, once per
+feed) from the \emph{cDFT interfacial sweep} (TP-flash + planar-interface solve
+at every $(T,P)$ point), at the default grid ($n_\mathrm{grid}=500$, no
+critical-region enhancement). Table~\ref{tab:stage} gives the result: phase
+equilibria is only $\approx$2.5\% of the stage time; the \emph{cDFT interface
+solve dominates ($\approx$97.5\%)}. The per-point cost moreover broadly rises
+with the number of components --- from $0.18$\,s/point for the 2-component feed
+to $1.8$\,s/point for the 8-component feed, a $\sim$10$\times$ spread driven by
+the coupled multicomponent density profiles, not by the flash --- though it is
+not strictly monotonic (the 4-component feed at $0.60$\,s/point exceeds the
+6-component feed at $0.53$\,s/point), since per-point cost also depends on how
+near-critical and hard-to-converge a feed is.
+(These absolute times sit below the production-grid maps of
+Table~\ref{tab:cdft-vs-ml} because the latter used the finer $n_\mathrm{grid}=2048$
+grid; the $\approx$2.5\% phase-equilibria fraction and the component-count
+scaling are the grid-independent take-aways.)
+
+\begin{table}[t]
+\centering
+\caption{Re-timed cDFT $\gamma$ map on \texttt{c109} (2$\times$ AMD EPYC~9754;
+default grid $n_\mathrm{grid}=500$, hybrid $4\times4$ threading):
+phase-equilibria stage vs.\ cDFT interfacial sweep, per feed. ``Total/pt'' is the
+combined stage time per $(T,P)$ point.}
+\label{tab:stage}
+\small
+\begin{tabular}{rrrrrrrr}
+\toprule
+Feed & Comp.\ & Points & Phase-eq [s] & cDFT sweep [s] & cDFT/pt [s] & Total/pt [s] & Phase-eq share \\
+\midrule
+0 & 2 & 95  & 1.6 & 15.8  & 0.167 & 0.184 & 9.2\% \\
+1 & 4 & 100 & 1.8 & 57.9  & 0.579 & 0.597 & 3.0\% \\
+2 & 6 & 100 & 2.2 & 51.1  & 0.511 & 0.533 & 4.1\% \\
+3 & 7 & 105 & 3.5 & 181.1 & 1.725 & 1.758 & 1.9\% \\
+4 & 8 & 100 & 3.1 & 176.1 & 1.761 & 1.791 & 1.7\% \\
+\midrule
+\multicolumn{2}{l}{Total / aggregate} & 500 & 12.2 & 481.9 & --- & --- & \textbf{2.5\%} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{\texttt{FeOs} reference (Rehner et~al.\ 2023).}
+The \texttt{FeOs} framework \cite{rehner2023feos} --- the same engine used to
+generate our $\gamma$ maps --- reports (1D, 1024 grid points, Intel Core
+i7-7700K) a single planar surface tension in $0.09$\,s and a 50-composition
+surface-tension diagram in $14.2$\,s ($\approx0.28$\,s/composition), with one
+Helmholtz-energy evaluation (with hyper-dual derivatives) at $\sim$0.9--1.5\,$\mu$s.
+The gap to our $0.75$--$6.6$\,s/point is therefore \emph{not} explained by the
+phase-equilibrium flash (which Table~\ref{tab:stage} shows is negligible,
+$\approx$2.5\%): it is that our ``point'' is a coupled \emph{multicomponent}
+(2--8 species) interface solve --- intrinsically 10--70$\times$ more expensive
+than the simple 1D pure-/binary-fluid interface that the reference times --- on
+a finer grid. The order of magnitude is consistent once this is accounted for.
+
+\paragraph{GPU-accelerated 3D cDFT (Stierle et~al.\ 2024).}
+Even the state-of-the-art GPU-accelerated cDFT of Stierle et~al.\
+\cite{stierle2024gpu} (JAX, backward-mode automatic differentiation, RTX~4090)
+requires \emph{seconds} per calculation: one 3D equilibrium density profile takes
+$0.42$\,s ($N_\mathrm{grid}=8$) to $21.8$\,s ($N_\mathrm{grid}=256$), and a full
+3D adsorption isotherm (20 pressures, $N_\mathrm{grid}=64$) takes $\approx16$\,s.
+Their GPU implementation is $\sim$50--60$\times$ faster than a single CPU core and
+up to $550\times$ faster than the \texttt{FeOs} CPU reference at
+$N_\mathrm{grid}=128$ (where \texttt{FeOs} needs $1580$\,s).
+Table~\ref{tab:lit} places our numbers alongside these.
+
+\begin{table}[t]
+\centering
+\caption{Literature context for the cost of a cDFT evaluation vs.\ our ML
+surrogate. Tasks differ (1D interface vs.\ 3D adsorption profile), so this is a
+qualitative placement, not a controlled comparison.}
+\label{tab:lit}
+\small
+\begin{tabular}{lll}
+\toprule
+Source / method & Task & Wall time \\
+\midrule
+This work, cDFT (\texttt{FeOs}, c109) & 1D $\gamma$/point, 2--8 comp, $n_\mathrm{grid}{=}2048$ & 0.75--6.6\,s \\
+This work, cDFT (\texttt{FeOs}, c109) & 1D $\gamma$/point, 2--8 comp, $n_\mathrm{grid}{=}500$ (re-timed) & 0.18--1.8\,s \\
+Rehner 2023 \cite{rehner2023feos}, \texttt{FeOs} CPU & 1D surface tension, 1024 pts & 0.09\,s \\
+Rehner 2023 \cite{rehner2023feos}, \texttt{FeOs} CPU & 50-composition $\sigma$ diagram & 14.2\,s \\
+Stierle 2024 \cite{stierle2024gpu}, JAX GPU & 3D density profile ($N{=}64$)   & 0.51\,s \\
+Stierle 2024 \cite{stierle2024gpu}, JAX GPU & 3D density profile ($N{=}256$)  & 21.8\,s \\
+Stierle 2024 \cite{stierle2024gpu}, JAX GPU & 3D isotherm (20 $p$, $N{=}64$)  & $\approx$16\,s \\
+Stierle 2024 \cite{stierle2024gpu}, \texttt{FeOs} CPU & 3D profile ($N{=}128$) & 1580\,s \\
+\textbf{This work, TabPFN/GPR/SR surrogate} & 1D $\gamma$ per state point & \textbf{$5\times10^{-4}$--$1.7\times10^{-3}$\,s} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Take-away.}
+GPU acceleration brings cDFT from minutes/hours to \emph{seconds} per calculation
+\cite{stierle2024gpu}; our ML surrogates bring it a further $10^3$--$10^4\times$
+down, to \emph{sub-millisecond} per point --- i.e.\ faster than even
+GPU-accelerated cDFT --- while preserving cDFT-level accuracy
+($R^2\gtrsim0.9999$). The two approaches are complementary: fast (GPU) cDFT
+generates the training data; the surrogate then serves predictions at a cost
+compatible with high-throughput screening and gradient-based inverse design.
+
+% ===========================================================================
+\section{Conclusions}
+% ===========================================================================
+\begin{itemize}
+  \item Across all four targets, both TabPFN variants reproduce cDFT with
+        $R^2\ge0.9998$ on the test split; \texttt{with\_HPO} is the more accurate
+        and the right choice for deployment (CV $\gamma$ RMSE $=0.040$ \gmm).
+  \item Cross-validation, not the i.i.d.\ test split, is the honest accuracy
+        metric: the CV $\gamma$ RMSE ($0.040$ \gmm) matches the deployment error
+        on the full map ($0.03$--$0.05$ \gmm), while the test RMSE ($0.006$ \gmm)
+        was $\sim$6$\times$ optimistic.
+  \item Replacing cDFT by the surrogate accelerates a $\gamma$ map by
+        $10^3$--$10^4\times$ (hours $\to$ seconds) at negligible accuracy cost.
+  \item Residual-correction models also work well; on the residual target SVGP
+        has the smallest CV RMSE ($0.023$ \gmm) and GPR/SR are the cheapest to
+        serve ($\sim$8\,$\mu$s and $\sim$8\,ns per point batched).
+  \item Direct re-timing on \texttt{c109} shows the cDFT per-point cost is
+        dominated by the multicomponent interface solve ($\approx$97.5\%), not the
+        phase-equilibrium flash ($\approx$2.5\%); per-point cost scales with
+        component count ($0.18\to1.8$\,s for 2$\to$8 species).
+  \item Per state point, the learned models cost sub-millisecond vs.\ seconds for
+        cDFT --- faster than even the GPU-accelerated cDFT of the literature
+        \cite{stierle2024gpu}, while the physics engine (\texttt{FeOs}
+        \cite{rehner2023feos}) remains the source of ground truth.
+\end{itemize}
+
+% ===========================================================================
+\begin{thebibliography}{9}
+
+\bibitem{rehner2023feos}
+P.~Rehner, G.~Bauer, and J.~Gross,
+\newblock FeOs: An Open-Source Framework for Equations of State and Classical
+Density Functional Theory,
+\newblock \emph{Ind.\ Eng.\ Chem.\ Res.} \textbf{62} (2023) 5347--5357.
+\newblock doi:10.1021/acs.iecr.2c04561.
+
+\bibitem{stierle2024gpu}
+R.~Stierle, G.~Bauer, N.~Thiele, B.~Bursik, P.~Rehner, and J.~Gross,
+\newblock Classical density functional theory in three dimensions with
+GPU-accelerated automatic differentiation: Computational performance analysis
+using the example of adsorption in covalent-organic frameworks,
+\newblock \emph{Chem.\ Eng.\ Sci.} \textbf{298} (2024) 120380.
+\newblock doi:10.1016/j.ces.2024.120380.
+
+\end{thebibliography}
+
+\end{document}

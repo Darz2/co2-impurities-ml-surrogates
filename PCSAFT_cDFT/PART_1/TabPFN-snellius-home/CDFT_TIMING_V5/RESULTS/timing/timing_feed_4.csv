@@ -1,0 +1,2 @@
+feed_index,n_points,n_points_converged,n_isotherms,ngrid,lgrid,T_STEP,cDFT_NP,outer_workers,rayon_threads,phase_eq_s,cdft_sweep_s,total_stage_s,cdft_per_point_s,total_per_point_s,node
+4,100,100,20,500,100,5,5,4,4,3.0558,176.0592,179.115,1.760592,1.79115,c109
