@@ -2,9 +2,9 @@
 #SBATCH --job-name=ML-SVM_gamma
 #SBATCH --partition=highmem
 #SBATCH --time=6:00:00
-#SBATCH --nodelist=c109
+#SBATCH --nodelist=c108
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=64
+#SBATCH --cpus-per-task=12
 #SBATCH --mem-per-cpu=4G
 
 set -euo pipefail
