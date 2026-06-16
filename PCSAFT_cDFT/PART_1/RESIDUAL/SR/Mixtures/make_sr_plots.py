@@ -14,9 +14,25 @@
 from pathlib import Path
 import numpy as np
 import pandas as pd
-from thermoift import MLPostprocessing
+from thermoift import MLPostprocessing, PLOT_SETTINGS as ps
 
 HERE = Path(__file__).resolve().parent
+
+# ---- figure / tick styling (override the thermoift PLOT_SETTINGS globals) ----
+ps.plot_size      = (4, 3)   # was (4, 3): larger figure
+ps.tick_labelsize = 14         # was 10:    larger tick labels
+ps.tick_length    = 5          # was 4:     longer major ticks
+ps.tick_width     = 1.0        # was 0.75:  thicker major ticks
+
+# ---- legend styling passed to the plot calls below ----
+LEGEND_FONTSIZE = 10
+LEGEND_BOLD     = True
+
+# ---- per-axis tick styling (x and y can be set independently) ----
+# Forwarded to ax.tick_params(axis="x"/"y", ...); overrides the ps.* tick
+# globals above for that axis only. Edit each dict separately.
+XTICK_PARAMS = {"labelsize": 14, "length": 5, "width": 1.0}   # x-axis ticks
+YTICK_PARAMS = {"labelsize": 14, "length": 5, "width": 1.0}   # y-axis ticks
 
 # (output folder, label) for each feature set
 RUNS = [
@@ -105,10 +121,18 @@ def make_plots(target_key, target_data, out_dir):
         datasets={k: target_data[k] for k in ("train", "test", "val")},
     )
     if target_key == "eps_base":
-        post._get_target_label = lambda: r"$\varepsilon_{\mathrm{base}}$ / $[-]$"
-        post._get_target_symbol = lambda: r"\varepsilon_{\mathrm{base}}"
-    post.plot_parity(save_path=f"SR_parity_{target_key}", folder=str(out_dir))
-    post.plot_residual_vs_predicted(save_path=f"SR_residual_{target_key}", folder=str(out_dir), y_range=(-3.2, 3.2))
+        post._get_target_label = lambda: r"$\varepsilon_{\gamma}$ / $[-]$"
+        post._get_target_symbol = lambda: r"\varepsilon_{\gamma}"
+    post.plot_parity(
+        save_path=f"SR_parity_{target_key}", folder=str(out_dir),
+        legend_fontsize=LEGEND_FONTSIZE, legend_bold=LEGEND_BOLD,
+        xtick_params=XTICK_PARAMS, ytick_params=YTICK_PARAMS,
+    )
+    post.plot_residual_vs_predicted(
+        save_path=f"SR_residual_{target_key}", folder=str(out_dir), y_range=(-2, 2),
+        legend_fontsize=LEGEND_FONTSIZE, legend_bold=LEGEND_BOLD,
+        xtick_params=XTICK_PARAMS, ytick_params=YTICK_PARAMS,
+    )
 
 
 def main():
