@@ -129,7 +129,7 @@ def make_plots(target_key, target_data, out_dir):
         xtick_params=XTICK_PARAMS, ytick_params=YTICK_PARAMS,
     )
     post.plot_residual_vs_predicted(
-        save_path=f"SR_residual_{target_key}", folder=str(out_dir), y_range=(-2, 2),
+        save_path=f"SR_residual_{target_key}", folder=str(out_dir), y_range=(-0.5, 0.5),
         legend_fontsize=LEGEND_FONTSIZE, legend_bold=LEGEND_BOLD,
         xtick_params=XTICK_PARAMS, ytick_params=YTICK_PARAMS,
     )
