@@ -46,6 +46,9 @@ legend text.  Both are addressed here:
   for -- they share the legend version's bounding box, so the two sets overlay
   exactly.
 
+Text is typeset by lualatex in OpenType Latin Modern and embedded as outlines;
+see ``apply_font_settings`` for why that matters at submission.
+
 Everything else -- data, splits, RMSE values, axis ranges, panel order -- is
 unchanged with respect to the published version of the figure.
 
@@ -67,7 +70,7 @@ import shutil
 import sys
 
 import matplotlib
-matplotlib.use("Agg")
+matplotlib.use("pgf")
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -77,6 +80,67 @@ from matplotlib.patches import Rectangle
 from matplotlib.ticker import AutoMinorLocator, MultipleLocator
 
 import thermoift.PLOT_SETTINGS as ps
+
+# --------------------------------------------------------------------------- #
+# Fonts                                                                        #
+# --------------------------------------------------------------------------- #
+
+# Applied after the PLOT_SETTINGS import so these win over its import-time
+# rcParams, and re-applied by build_figure9 so neither script depends on the
+# other's import order.
+#
+# The panels are typeset by lualatex through the pgf backend rather than drawn
+# by Agg, which is what lets the figures use the same OpenType Latin Modern the
+# manuscript does: fontspec loads the OTF faces directly and unicode-math routes
+# every formula through latinmodern-math.otf.  lualatex embeds those as
+# subsetted CID/Type 1C, so nothing Type 3 reaches the PDF -- ACS and Elsevier
+# preflight reject Type 3.  siunitx and mhchem are loaded so unit and formula
+# markup can be written in labels in the same syntax as the paper.
+#
+# Three things go beyond the minimum, each closing a hole that would otherwise
+# leak a legacy font into the output:
+#
+#   rcfonts=False stops matplotlib injecting its own \setmainfont/\setsansfont
+#   ahead of this preamble, where it would override the faces chosen here.
+#
+#   \setsansfont is needed because PLOT_SETTINGS' plot_init creates the axes
+#   under font.family='sans-serif', so the tick and label artists carry that
+#   family and pgf emits \sffamily for them; without it they fall back to
+#   legacy Computer Modern Sans.  Nearly every string in these panels is math,
+#   so this is a guard rather than something the labels currently rely on.
+#
+#   The bold math version is what ``bold()`` reaches through \boldmath.
+#   unicode-math takes over \mathrm for the normal version only, so \boldmath
+#   drops back to the kernel's Computer Modern alphabets -- CMBX turns up in the
+#   legend labels.  Declaring the bold version and pointing its \mathrm/\mathsf
+#   at the fontspec families keeps those in Latin Modern; the symbols have no
+#   designed bold companion, hence FakeBold.
+PGF_PREAMBLE = "\n".join([
+    r"\usepackage{fontspec}",
+    r"\usepackage{unicode-math}",
+    r"\setmainfont{Latin Modern Roman}",
+    r"\setsansfont{Latin Modern Sans}",
+    r"\setmathfont{Latin Modern Math}",
+    r"\setmathfont{Latin Modern Math}[version=bold, FakeBold=2]",
+    r"\SetMathAlphabet{\mathrm}{bold}{TU}{\rmdefault}{\bfdefault}{n}",
+    r"\SetMathAlphabet{\mathsf}{bold}{TU}{\sfdefault}{\bfdefault}{n}",
+    r"\usepackage{siunitx}",
+    r"\usepackage{mhchem}",
+])
+
+
+def apply_font_settings() -> None:
+    """Latin Modern via lualatex; no Type 3 fonts in the PDF output."""
+    matplotlib.rcParams.update({
+        "pgf.texsystem": "lualatex",
+        "pgf.rcfonts": False,
+        "font.family": "serif",
+        "pgf.preamble": PGF_PREAMBLE,
+        "text.usetex": True,    # keeps label strings on the LaTeX path
+    })
+
+
+apply_font_settings()
 
 # --------------------------------------------------------------------------- #
 # Paths                                                                        #

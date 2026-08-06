@@ -1,0 +1,94 @@
+{
+  "model": "WSD + SVGP residual correction",
+  "run": "RESIDUAL/SVGP/SVGP_RESIDUAL_OUTPUTS",
+  "target": "gamma",
+  "unit": "mN/m",
+  "seed": 4555525,
+  "device": "cpu",
+  "n_train": 16130,
+  "n_inducing": 2000,
+  "features": [
+    "T",
+    "P",
+    "z_argon",
+    "z_carbon_dioxide",
+    "z_carbon_monoxide",
+    "z_hydrogen",
+    "z_hydrogen_sulfide",
+    "z_methane",
+    "z_nitrogen"
+  ],
+  "levels": [
+    0.5,
+    0.6,
+    0.7,
+    0.8,
+    0.9,
+    0.95,
+    0.99
+  ],
+  "coverage_test": [
+    {
+      "nominal": 0.5,
+      "empirical": 0.7806712962962963,
+      "n": 3456,
+      "mean_width": 0.040001099184248066,
+      "median_width": 0.029793887842209266
+    },
+    {
+      "nominal": 0.6,
+      "empirical": 0.8258101851851852,
+      "n": 3456,
+      "mean_width": 0.04989446971315026,
+      "median_width": 0.037018596543170634
+    },
+    {
+      "nominal": 0.7,
+      "empirical": 0.8587962962962963,
+      "n": 3456,
+      "mean_width": 0.06144800108345773,
+      "median_width": 0.04561016751688429
+    },
+    {
+      "nominal": 0.8,
+      "empirical": 0.8868634259259259,
+      "n": 3456,
+      "mean_width": 0.07596135550569005,
+      "median_width": 0.05640609224936721
+    },
+    {
+      "nominal": 0.9,
+      "empirical": 0.9146412037037037,
+      "n": 3456,
+      "mean_width": 0.09747558612693517,
+      "median_width": 0.07273384298190644
+    },
+    {
+      "nominal": 0.95,
+      "empirical": 0.9305555555555556,
+      "n": 3456,
+      "mean_width": 0.11609091767496499,
+      "median_width": 0.08660030822721132
+    },
+    {
+      "nominal": 0.99,
+      "empirical": 0.9548611111111112,
+      "n": 3456,
+      "mean_width": 0.1525786612394521,
+      "median_width": 0.11386781395445045
+    }
+  ],
+  "table1_feed_to_source_id": {
+    "1": 89,
+    "2": 21,
+    "3": 13,
+    "5": 95
+  },
+  "test_rmse": 0.036609337701001984,
+  "reproduction_check": {
+    "split": "test",
+    "n": 3456,
+    "rmse": 0.036609337701001984,
+    "rmse_stored": 0.0366093390147102
+  }
+}

@@ -69,7 +69,7 @@ import shutil
 import sys
 
 import matplotlib
-matplotlib.use("Agg")
+matplotlib.use("pgf")
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -81,6 +81,7 @@ import thermoift.PLOT_SETTINGS as ps
 
 # Style, fonts and the legend-placement/saving machinery are Figure 4's.
 from build_figure4 import (
+    apply_font_settings,
     BAND_LINEWIDTH,
     LABELPAD,
     LABEL_FONTSIZE,
@@ -100,6 +101,12 @@ from build_figure4 import (
     unit_inner,
     visible_marker_frac,
 )
+
+# OpenType Latin Modern through lualatex, no Type 3 fonts.  Importing
+# build_figure4 has already applied these; the call is repeated so the setting
+# is visible here too and does not depend on that side effect surviving a
+# refactor.  See build_figure4 for why.
+apply_font_settings()
 
 # --------------------------------------------------------------------------- #
 # Paths                                                                        #

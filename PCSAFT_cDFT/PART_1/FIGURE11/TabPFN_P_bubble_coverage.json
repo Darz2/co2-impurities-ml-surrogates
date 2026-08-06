@@ -1,0 +1,102 @@
+{
+  "model": "TabPFN with HPO",
+  "run": "TabPFN-snellius-home/with_HPO/SLURMBubble",
+  "target": "P_bubble",
+  "unit": "bar",
+  "seed": 454015,
+  "device": "cpu",
+  "n_train": 13552,
+  "features": [
+    "temperature",
+    "pressure",
+    "z_carbon dioxide",
+    "z_hydrogen",
+    "z_nitrogen",
+    "z_argon",
+    "z_methane",
+    "z_oxygen",
+    "z_carbon monoxide",
+    "z_hydrogen sulfide"
+  ],
+  "quantiles": [
+    0.005,
+    0.025,
+    0.05,
+    0.1,
+    0.15,
+    0.2,
+    0.25,
+    0.75,
+    0.8,
+    0.85,
+    0.9,
+    0.95,
+    0.975,
+    0.995
+  ],
+  "coverage_test": [
+    {
+      "nominal": 0.5,
+      "empirical": 0.9765840220385675,
+      "n": 2904,
+      "mean_width": 0.13945499062538147,
+      "median_width": 0.11443710327148438
+    },
+    {
+      "nominal": 0.6,
+      "empirical": 0.9900137741046832,
+      "n": 2904,
+      "mean_width": 0.1744990348815918,
+      "median_width": 0.1429271697998047
+    },
+    {
+      "nominal": 0.7,
+      "empirical": 0.996900826446281,
+      "n": 2904,
+      "mean_width": 0.21548983454704285,
+      "median_width": 0.17578887939453125
+    },
+    {
+      "nominal": 0.8,
+      "empirical": 0.9989669421487604,
+      "n": 2904,
+      "mean_width": 0.26764118671417236,
+      "median_width": 0.2184891700744629
+    },
+    {
+      "nominal": 0.9,
+      "empirical": 1.0,
+      "n": 2904,
+      "mean_width": 0.34641018509864807,
+      "median_width": 0.28206968307495117
+    },
+    {
+      "nominal": 0.95,
+      "empirical": 1.0,
+      "n": 2904,
+      "mean_width": 0.4166862666606903,
+      "median_width": 0.33850669860839844
+    },
+    {
+      "nominal": 0.99,
+      "empirical": 1.0,
+      "n": 2904,
+      "mean_width": 0.5590519905090332,
+      "median_width": 0.4545173645019531
+    }
+  ],
+  "table1_feed_to_source_id": {
+    "1": 89,
+    "2": 21,
+    "3": 13,
+    "5": 95
+  },
+  "test_rmse": 0.04167333358647734,
+  "reproduction_check": {
+    "n_compared": 3031,
+    "max_abs_diff": 0.6402132666015632,
+    "rmse_between_runs": 0.03351673200195097,
+    "rmse_vs_reference_cpu": 0.043016202718350625,
+    "rmse_vs_reference_h100": 0.0383937398308315
+  }
+}
